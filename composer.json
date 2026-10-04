@@ -1,0 +1,6 @@
+{
+    "name": "bonny/api",
+    "description": "Progetto Finale S2i di PHP & MySQL. Bonny, per dimostrare il proprio contributo, ha deciso di realizzare una dashboard che visualizzi il tempo risparmiato utilizzando i loro servizi. Noi Creiamo una REST API per permettere i collegamenti al DB",
+    "type": "project",
+    "require": {}
+}
