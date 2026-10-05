@@ -4,6 +4,7 @@
 // Inseriamo un namespace per non avere conflitti in futuro e identificare la classe all'interno dell'architettura
 namespace Bonny\database;
 
+// Utilizziamo PDO come connessione tra PHP e il Server Database
 use PDO;
 
 // Così facendo il nome completo della classe è Bonny\database\Connection
@@ -20,26 +21,19 @@ class Connection {
     }
 
     // Creiamo la funzione di connessione getConnection
-    function getConnection() /*: PDO*/ {
+    function getConnection(): PDO {
+        // Il dsn (Data Source Name) è una stringa che contiene le informazioni per connettere l'app ad un DB
         $dsn = 'mysql:host=' . $this->db['host'] . ';port=' . $this->db['port'] . ';dbname=' . $this->db['name'] . ';charset=utf8mb4';
-    }
-}
 
-// Importiamo il file config.php per utilizzare l'array di configurazione
-$db = $config['database'];
-function getConnection(): PDO {
-    $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
-    try {
-        $pdo = new PDO($dsn, DB_USER, DB_PASS, [
+        /* Creiamo la connessione PDO inserendo il dsn, l'user e la password del DB.
+        Aggiungiamo due opzioni, per gli errori trasformarle in eccezzioni così che possano propagarsi verso l'alto,
+        e che i dati restutiuti da PDO siano restituiti in formato Array Associativo */
+        $pdo = new PDO($dsn, $this->db['user'], $this->db['password'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
-
+        
+        // Ritornismo $pdo come promesso all'inizio ():PDO
         return $pdo;
-
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database connection failed.']);
-        exit;
     }
 }
