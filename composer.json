@@ -1,8 +1,13 @@
 {
     "name": "bonny/api",
-    "description": "Progetto Finale S2i di PHP & MySQL. Bonny, per dimostrare il proprio contributo, ha deciso di realizzare una dashboard che visualizzi il tempo risparmiato utilizzando i loro servizi. Noi Creiamo una REST API per permettere i collegamenti al DB",
+    "description": "Progetto Finale S2i di PHP & MySQL.  Noi Creiamo una REST API per permettere i collegamenti al DB della Dashboard di Bonny per i bonus statali.",
     "type": "project",
     "require": {
         "vlucas/phpdotenv": "^5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bonny\\": "src/"
+        }
     }
 }
