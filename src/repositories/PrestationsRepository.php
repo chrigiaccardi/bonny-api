@@ -60,4 +60,58 @@ class PrestationsRepository {
         // Ritorniamo l'id_prestation tipizzato INT all'inizio ():int
         return $id_prestation;
     }
+
+    /* Metodo update($id): Aggiorna totalmente con PUT una prestazione specificata dall'$id in ingresso,
+    con i valori $name e $time_saved arrivati dalla richiesta */
+    function update (int $id_prestation, string $name, int $time_saved):int {
+        // Creiamo la query che aggiorna la prestazione in base all'id in ingresso e ai dati ricevuti dalla richiesta
+        $query = "UPDATE " . PrestationsRepository::TABLE_NAME . " SET name = :name, time_saved = :time_saved WHERE id = :id";
+
+        // Prepariamo lo statement, effettuaimo il bindValue e eseguiamo lo statement
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindValue(':name', $name, PDO::PARAM_STR);
+        $stmt->bindValue(':time_saved', $time_saved, PDO::PARAM_INT);
+        $stmt->bindValue(':id', $id_prestation, PDO::PARAM_INT);
+        $stmt->execute();
+
+        /* Ritorniamo indietro il conteggio delle righe modificate con la query 
+        se 1 vuol dire che la modifica è stata effettuata, quindi è presenta un record,
+        0 invece se è uguale a prima e non vi sono record */
+        $row = $stmt->rowCount();
+        return $row;
+    }
+
+    /* Metodo deactivate($id_pprestation): Ho deciso di disattivare la prestazione e non eliminarla completamente per una questione
+    di storicità di dati. Se vado ad eliminare una prestazione e a cascata i dettagli di una vendita, di conseguenza 
+    il tempo rispamriato totale dai cittadini verrà modificato e non è coerente */
+    function deactivate(int $id_prestation):int {
+        // Creiamo la query che disattiva il record selezionato con l'id.
+        $query = "UPDATE " . PrestationsRepository::TABLE_NAME . " SET active = FALSE WHERE id = :id";
+
+        // Prepariamo lo statement, effettuaimo il bindValue e eseguiamo lo statement
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindValue(':id', $id_prestation, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Ritorniamo indietro il numero di record presenti cioè modificati
+        $row = $stmt->rowCount();
+        return $row;
+    }
+
+    /* Metodo Activate($id_prestation): Di conseguenza alla disattivazione della prestazione dobbiamo anche dare
+    la possibilità di riattivarla nel caso di necessità. */
+    function activate(int $id_prestation): int
+    {
+        // Creiamo la query che attiva il record selezionato con l'id.
+        $query = "UPDATE " . PrestationsRepository::TABLE_NAME . " SET active = TRUE WHERE id = :id";
+
+        // Prepariamo lo statement, effettuaimo il bindValue e eseguiamo lo statement
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindValue(':id', $id_prestation, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Ritorniamo indietro il numero di righe modificate
+        $row = $stmt->rowCount();
+        return $row;
+    }
 }
