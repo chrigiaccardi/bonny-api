@@ -11,7 +11,7 @@ use Bonny\repositories\PrestationsRepository;
 use InvalidArgumentException;
 
 class PrestationsService{
-    // istanziamo la variabile $prestationsRepository affinchè ogni PrestationsService abbia la sua proprietà privata
+    // Dichiariamo una proprietà $prestationsRepository affinchè ogni PrestationsService abbia la sua proprietà privata
     private PrestationsRepository $prestationsRepository;
 
     /* Con il costruttore dichiariamo che l'oggetto di tipo PrestationsRepository
@@ -27,12 +27,12 @@ class PrestationsService{
 
         // Effettuiamo una verifica, se il campo è vuoto da errore
         if(mb_strlen($nameData) === 0){
-            throw new InvalidArgumentException('Il nome è Obbligatorio!');
+            throw new InvalidArgumentException("Il campo 'Name' è obbligatorio");
         }
 
         // Effettuiamo una verifica che $name sia sotto i 50 caratteri
         if(mb_strlen($nameData) > 50){
-            throw new InvalidArgumentException('Il nome non può superare 50 caratteri.');
+            throw new InvalidArgumentException("Il campo 'Name' non può superare 50 caratteri.");
         }
 
         // Ritorniamo il name validato
@@ -49,6 +49,14 @@ class PrestationsService{
         if ($id < 1) {
             throw new InvalidArgumentException("L'ID inserito non è valido.");
         }
+    }
+
+    //Validazione Metodo getAllActive():array
+    public function getAllActive():array {
+        // Chiamiamo PrestationRepository e il suo metodo getAllActive()
+        $prestationsActive = $this->prestationsRepository->getAllActive();
+        // Ritorniamo l'array che arriva dal metodo getAllActive()
+        return $prestationsActive;
     }
 
     // Validazione Metodo create(string $name, int $time_saved):int

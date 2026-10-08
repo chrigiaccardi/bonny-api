@@ -8,7 +8,7 @@ use PDO;
 
 // Creiamo la classe PrestationRepository
 class PrestationsRepository {
-    // istanziamo la variabile $pdo affinchè ogni PrestationsRepository abbia la sua proprietà privata $pdo
+    // Dichiariamo una proprietà $pdo affinchè ogni PrestationsRepository abbia la sua proprietà privata $pdo
     private PDO $pdo;
 
     // Creiamo una variabile per il nome della tabella così da riutilizzarlo nelle varie funzioni
@@ -31,10 +31,10 @@ class PrestationsRepository {
         $stmt->execute();
 
         // Recuperiamo i dati trasformandoli in un array associativo come da configurazione PDO (connection.php)
-        $prestations = $stmt->fetchAll();
+        $prestationsActive = $stmt->fetchAll();
 
         // Ritorniamo l'array con tutte le prestazioni attive
-        return $prestations;
+        return $prestationsActive;
     }
 
     // Metodo create(): crea una nuova tipologia di prestazione inserendo name e time_saved e restituisce l'id della prestazione creata in formato INT
