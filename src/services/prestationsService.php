@@ -21,7 +21,7 @@ class PrestationsService{
     }
 
     //Creiamo i metodi di validazione al di fuori deli metodi così da porterli riutilizzare
-    private function validateName(string $name):void {
+    private function validateName(string $name):string {
         // trim() elimina spazi all'inizio e alla fine
         $nameData = trim($name);
 
@@ -35,6 +35,8 @@ class PrestationsService{
             throw new InvalidArgumentException('Il nome non può superare 50 caratteri.');
         }
 
+        // Ritorniamo il name validato
+        return $nameData;
     }
 
     private function validateTimeSaved(int $time_saved):void {
@@ -52,11 +54,11 @@ class PrestationsService{
     // Validazione Metodo create(string $name, int $time_saved):int
     public function create(string $name, int $time_saved):int {
         // Chiamiamo le due funzioni di validazione
-        $this->validateName($name);
+        $nameData = $this->validateName($name);
         $this->validateTimeSaved($time_saved);
 
         //Chiamiamo PrestationRepository e il suo metodo create
-        $id_prestation = $this->prestationsRepository->create($name, $time_saved);
+        $id_prestation = $this->prestationsRepository->create($nameData, $time_saved);
 
         // Ritorniamo l'id_prestation che arriva dal metodo create del Repository
         return $id_prestation;
@@ -66,11 +68,11 @@ class PrestationsService{
     public function update(int $id_prestation, string $name, int $time_saved):int {
         // Validiamo i parametri in ingresso
         $this->validateId($id_prestation);
-        $this->validateName($name);
+        $nameData = $this->validateName($name);
         $this->validateTimeSaved($time_saved);
 
         // Eseguiamo il metodo update() del repository e ritorniamo il numero di record aggiornati
-        $row = $this->prestationsRepository->update($id_prestation, $name, $time_saved);
+        $row = $this->prestationsRepository->update($id_prestation, $nameData, $time_saved);
         return $row;
     }
 
