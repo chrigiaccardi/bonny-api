@@ -11,6 +11,7 @@ namespace Bonny\controllers;
 
 use Bonny\services\PrestationsService;
 use InvalidArgumentException;
+use TypeError;
 
 class PrestationsController {
     // Dichiariamo una proprietà $prestationsService affinchè ogni PrestationsService abbia la sua proprietà privata
@@ -41,15 +42,25 @@ class PrestationsController {
         if (!array_key_exists('name', $data)) {
             sendJson(['error' => "Il campo 'Name' è obbligatorio"], 422);
         }
-        // Se il campo è valido esce dall'if e lo estraiamo
-        $name = $data['name'];
+        /* Se il campo è valido esce dall'if e lo verifichiamo che sia effettivamente una stringa di testo,
+        altrimenti mandiamo indietro un messaggio di errore */
+        if (is_string($data['name'])) {
+            $name = $data['name'];
+        } else {
+            sendJson(['error' => "Il campo 'Name' deve essere una stringa di testo"], 422);
+        }
 
         if (!array_key_exists('time_saved', $data)) {
             sendJson(['error' => "Il campo 'Time_saved' è obbligatorio."], 422);
         }
-        // Se il campo è valido esce dall'if e lo estraiamo
-        $time_saved = $data['time_saved'];
-
+        /* Se il campo è valido esce dall'if e lo verifichiamo che sia effettivamente una numero intero,
+        altrimenti mandiamo indietro un messaggio di errore */
+         if (is_int($data['time_saved'])) {
+            $time_saved = $data['time_saved'];
+        } else {
+            sendJson(['error' => "Il campo 'time_saved' deve essere un numero intero"], 422);
+        }
+        
         // Chiamiamo il metodo create() dal PrestationsService e gestiamo gli errori con catch
         try {
             $id_prestation = $this->prestationsService->create($name, $time_saved);

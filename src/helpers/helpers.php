@@ -27,6 +27,6 @@ function readJsonInput(): array {
     // $data è l'array associativo decodificato e trasformato dalla stringa json in entrata con la richiesta
     $data = json_decode(file_get_contents('php://input'), true);
     
-    // Ritorniamo $data oppure un array vuoto
-    return $data ?? [];
+    // Ritorniamo $data
+    return $data;
 }
