@@ -11,12 +11,12 @@ use PDO;
 class Connection {
 
     // istanziamo la variabile $db affinchè ogni Connection abbia la sua proprietà privata $db
-    private $db;
+    private array $db;
 
     /* Il costruttore permette di mettere l'oggetto parametro in ingresso nella proprietà privata $db dell'oggetto corrente.
     Quindi quando verrà chiamata una nuova classe new Connection ($config['database']) i dati di configurazione verranno
     inseriti automaticamente nella proprietà privata $db all'interno della classe */
-    public function __construct($db){
+    public function __construct( array $db){
         $this->db = $db;
     }
 

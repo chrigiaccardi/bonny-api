@@ -11,7 +11,6 @@ namespace Bonny\controllers;
 
 use Bonny\services\PrestationsService;
 use InvalidArgumentException;
-use TypeError;
 
 class PrestationsController {
     // Dichiariamo una proprietà $prestationsService affinchè ogni PrestationsService abbia la sua proprietà privata
