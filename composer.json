@@ -8,6 +8,7 @@
     "autoload": {
         "psr-4": {
             "Bonny\\": "src/"
-        }
+        },
+        "files": ["src/helpers/helpers.php"]
     }
 }

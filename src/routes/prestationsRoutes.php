@@ -10,22 +10,16 @@ use Bonny\database\Connection;
 use Bonny\repositories\PrestationsRepository;
 use Bonny\services\PrestationsService;
 
-/* $db riceve la configurazione restituita da config.php
- (array associativo con tutti i dati del file .env) */
+/** @var string $method */
+/** @var string $path */
 
-$db = require __DIR__ . "/../Config/config.php";
+/*Andiamo ad effettuare la verifica della condizione per eseguire il giusto metodo */
+if ($method === 'GET' && $path === '/prestations') {
+    $prestationsController->getAllActive();
+}
 
-// Creiamo l'oggetto $connection passando la configurazione al costruttore
-$connection = new Connection($db);
+if ($method === 'POST' && $path === '/prestations') {
+    $prestationsController->create();
+}
 
-// Recuperiamo la connessione $pdo tramite la funzione getConnection
-$pdo = $connection->getConnection();
 
-// Creiamo l'oggetto Repository passando pdo
-$prestationsRepository = new PrestationsRepository($pdo);
-
-// Creiamo l'oggetto Service passando il repository
-$prestationsService = new PrestationsService($prestationsRepository);
-
-// Creiamo l'oggetto controller passando il service
-$prestationsController = new PrestationsController($prestationsService);
