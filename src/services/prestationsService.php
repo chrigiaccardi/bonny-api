@@ -89,13 +89,17 @@ class PrestationsService{
     }
 
     // Validazione metodo deactivate(int $id_prestation)
-    public function deactivate(int $id_prestation):int {
+    public function deactivate(int $id_prestation):int|false {
         // Validazione del parametro ID
         $this->validateId($id_prestation);
 
-        // Eseguiamo il metodo deactivate() dal repository e ritorniamo il numero di record disattivati
-        $row = $this->prestationsRepository->deactivate($id_prestation);
-        return $row;
+        // Verifichiamo l'esistenza dell'id_prestation in ingresso
+        if ($this->prestationsRepository->existsById($id_prestation)) {
+            // Eseguiamo il metodo update() del repository e ritorniamo il numero di record aggiornati
+            $row = $this->prestationsRepository->deactivate($id_prestation);
+            return $row;
+        }
+        return false;
     }
 
     // Validazione metodo activate(int $id_prestation)

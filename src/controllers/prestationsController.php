@@ -129,4 +129,32 @@ class PrestationsController {
         }
     }
 
+    // Metodo deactivate(), come parametro abbiamo l'id per identificare la prestazione da disattivare
+    public function deactivate(int $id_prestation){
+        try {
+            // Controlliamo che l'id_prestation
+            $row = $this->prestationsService->deactivate($id_prestation);
+
+            // Se vi è 1 riga disattivata con successo, se 0 esistente ma non aggiornata (uguale) e false non trovata
+            if ($row === 1) {
+                // Inviamo il Json di risposta al client che la prestazione è stata aggiornata
+                sendJson(['message' => 'Prestazione disattivata con successo', 'id' => $id_prestation], 200);
+            } elseif ($row === 0) {
+                // Inviamo il Json di risposta al client che la prestazione è uguale a prima
+                sendJson(['message' => 'Prestazione già impostata su Disattivato', 'id' => $id_prestation], 200);
+            } elseif ($row === false) {
+                // Inviamo il Json di risposta al client che la prestazione non è stata trovata
+                sendJson(['error' => 'Prestazione non trovata'], 404);
+            }
+        } catch (InvalidArgumentException $error) {
+            // Estraiamo il messaggio di errore
+            $messageError = $error->getMessage();
+
+            // Inseriamo il messaggio di errore nel json con il codestatus 422
+            sendJson(['error' => $messageError], 422);
+        }
+    }
+
+
+
 }
