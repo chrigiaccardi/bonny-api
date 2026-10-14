@@ -65,7 +65,61 @@ class PrestationsController {
             $id_prestation = $this->prestationsService->create($name, $time_saved);
 
             // Inviamo il Json di risposta al client
-            sendJson(['message' => 'Prestazione Creata', 'id' => $id_prestation], 201);
+            sendJson(['message' => 'Prestazione creata con successo', 'id' => $id_prestation], 201);
+        } catch (InvalidArgumentException $error) {
+            // Estraiamo il messaggio di errore
+            $messageError = $error->getMessage();
+
+            // Inseriamo il messaggio di errore nel json con il codestatus 422
+            sendJson(['error' => $messageError], 422);
+        }
+    }
+
+    // Metodo update(), come parametro abbiamo l'id per identificare la prestazione esatta
+    public function update(int $id_prestation){
+        // Recuperiamo i dati inviati dal client (Json nel body della request) con la funzione readJsonInput()
+        $data = readJsonInput();
+
+        /* Controlliamo che i campi name e time_saved siano validi,
+        se sono vuoti allora manda un messaggio di errore */
+        if (!array_key_exists('name', $data)) {
+            sendJson(['error' => "Il campo 'Name' è obbligatorio"], 422);
+        }
+        /* Se il campo è valido esce dall'if e lo verifichiamo che sia effettivamente una stringa di testo,
+        altrimenti mandiamo indietro un messaggio di errore */
+        if (is_string($data['name'])) {
+            $name = $data['name'];
+        } else {
+            sendJson(['error' => "Il campo 'Name' deve essere una stringa di testo"], 422);
+        }
+
+        if (!array_key_exists('time_saved', $data)) {
+            sendJson(['error' => "Il campo 'Time_saved' è obbligatorio."], 422);
+        }
+        /* Se il campo è valido esce dall'if e lo verifichiamo che sia effettivamente una numero intero,
+        altrimenti mandiamo indietro un messaggio di errore */
+        if (is_int($data['time_saved'])) {
+            $time_saved = $data['time_saved'];
+        } else {
+            sendJson(['error' => "Il campo 'time_saved' deve essere un numero intero"], 422);
+        }
+
+        // Chiamiamo il metodo create() dal PrestationsService e gestiamo gli errori con catch
+        try {
+            // Controlliamo che l'id_prestation
+            $row = $this->prestationsService->update($id_prestation, $name, $time_saved);
+
+            // Se vi è 1 riga modificata allora successo, se 0 esistente ma non aggiornata (uguale) e false non trovata
+            if ($row === 1) {
+                // Inviamo il Json di risposta al client che la prestazione è stata aggiornata
+                sendJson(['message' => 'Prestazione aggiornata con successo', 'id' => $id_prestation], 200);
+            } elseif ($row === 0) {
+                // Inviamo il Json di risposta al client che la prestazione è uguale a prima
+                sendJson(['message' => 'Prestazione rimasta invariata', 'id' => $id_prestation], 200);
+            } elseif ($row === false) {
+                // Inviamo il Json di risposta al client che la prestazione non è stata trovata
+                sendJson(['error' => 'Prestazione non trovata'], 404);
+            }
         } catch (InvalidArgumentException $error) {
             // Estraiamo il messaggio di errore
             $messageError = $error->getMessage();

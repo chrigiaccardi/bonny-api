@@ -23,6 +23,7 @@ $method = $_SERVER['REQUEST_METHOD'];
     2. parse_url(..., PHP_URL_PATH) recuperiamo solamente il percorso, senza la query string; */
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
+
 /* $db riceve la configurazione restituita da config.php (array associativo con tutti i dati del file .env) */
 $db = require __DIR__ . "/../src/Config/config.php";
 

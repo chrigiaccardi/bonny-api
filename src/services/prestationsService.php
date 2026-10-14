@@ -73,15 +73,19 @@ class PrestationsService{
     }
 
     // Validazione metodo update(int $id_prestation, string $name, int $time_saved)
-    public function update(int $id_prestation, string $name, int $time_saved):int {
+    public function update(int $id_prestation, string $name, int $time_saved):int|false {
         // Validiamo i parametri in ingresso
         $this->validateId($id_prestation);
         $nameData = $this->validateName($name);
         $this->validateTimeSaved($time_saved);
 
-        // Eseguiamo il metodo update() del repository e ritorniamo il numero di record aggiornati
-        $row = $this->prestationsRepository->update($id_prestation, $nameData, $time_saved);
-        return $row;
+        // Verifichiamo l'esistenza dell'id_prestation in ingresso
+        if ($this->prestationsRepository->existsById($id_prestation)) {
+            // Eseguiamo il metodo update() del repository e ritorniamo il numero di record aggiornati
+            $row = $this->prestationsRepository->update($id_prestation, $nameData, $time_saved);
+            return $row;
+        }
+        return false;
     }
 
     // Validazione metodo deactivate(int $id_prestation)
