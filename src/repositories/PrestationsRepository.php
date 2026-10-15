@@ -11,7 +11,7 @@ class PrestationsRepository {
     // Dichiariamo una proprietà $pdo affinchè ogni PrestationsRepository abbia la sua proprietà privata $pdo
     private PDO $pdo;
 
-    // Creiamo una variabile per il nome della tabella così da riutilizzarlo nelle varie funzioni
+    // Creiamo una costante per il nome della tabella così da riutilizzarlo nelle varie funzioni
     private const TABLE_NAME = "prestations";
 
     /* Con il costruttore dichiariamo che l'oggetto di tipo PDO
@@ -63,7 +63,7 @@ class PrestationsRepository {
 
     /* Metodo update($id): Aggiorna totalmente con PUT una prestazione specificata dall'$id in ingresso,
     con i valori $name e $time_saved arrivati dalla richiesta */
-    function update (int $id_prestation, string $name, int $time_saved):int {
+    function update(int $id_prestation, string $name, int $time_saved):int {
         // Creiamo la query che aggiorna la prestazione in base all'id in ingresso e ai dati ricevuti dalla richiesta
         $query = "UPDATE " . PrestationsRepository::TABLE_NAME . " SET name = :name, time_saved = :time_saved WHERE id = :id";
 
