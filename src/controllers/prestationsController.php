@@ -22,6 +22,7 @@ class PrestationsController {
         $this->prestationsService = $prestationsService;
     }
 
+
     // Metodo getAllActive()
     public function getAllActive(){
         // Otteniamo l'array di tutte le prestazioni attive dal prestationsService
@@ -30,6 +31,7 @@ class PrestationsController {
         // Trasformiamo l'array in Json con la funzione sendJson.
         sendJson($prestationsActive);
     }
+
 
     // Metodo create()
     public function create(){
@@ -75,13 +77,14 @@ class PrestationsController {
         }
     }
 
+
     // Metodo update(), come parametro abbiamo l'id per identificare la prestazione esatta
     public function update(int $id_prestation){
         // Recuperiamo i dati inviati dal client (Json nel body della request) con la funzione readJsonInput()
         $data = readJsonInput();
 
-        /* Controlliamo che i campi name e time_saved siano validi,
-        se sono vuoti allora manda un messaggio di errore */
+        /* Controlliamo che il campo name sia valido,
+        se è vuoto allora manda un messaggio di errore */
         if (!array_key_exists('name', $data)) {
             sendJson(['error' => "Il campo 'Name' è obbligatorio"], 422);
         }
@@ -93,6 +96,8 @@ class PrestationsController {
             sendJson(['error' => "Il campo 'Name' deve essere una stringa di testo"], 422);
         }
 
+        /* Controlliamo che il campo time_saved sia valido,
+        se è vuoto allora manda un messaggio di errore */
         if (!array_key_exists('time_saved', $data)) {
             sendJson(['error' => "Il campo 'Time_saved' è obbligatorio."], 422);
         }
@@ -129,10 +134,11 @@ class PrestationsController {
         }
     }
 
+
     // Metodo deactivate(), come parametro abbiamo l'id per identificare la prestazione da disattivare
     public function deactivate(int $id_prestation){
         try {
-            // Controlliamo che l'id_prestation
+            // Facciamo partire il metodo deactivate per disattivare la perstazione
             $row = $this->prestationsService->deactivate($id_prestation);
 
             // Se vi è 1 riga disattivata con successo, se 0 esistente ma non aggiornata (uguale) e false non trovata
@@ -142,6 +148,33 @@ class PrestationsController {
             } elseif ($row === 0) {
                 // Inviamo il Json di risposta al client che la prestazione è uguale a prima
                 sendJson(['message' => 'Prestazione già impostata su Disattivato', 'id' => $id_prestation], 200);
+            } elseif ($row === false) {
+                // Inviamo il Json di risposta al client che la prestazione non è stata trovata
+                sendJson(['error' => 'Prestazione non trovata'], 404);
+            }
+        } catch (InvalidArgumentException $error) {
+            // Estraiamo il messaggio di errore
+            $messageError = $error->getMessage();
+
+            // Inseriamo il messaggio di errore nel json con il codestatus 422
+            sendJson(['error' => $messageError], 422);
+        }
+    }
+
+
+    // Metodo activate(), parametro ID ingresso per selezionare la prestazione da attivare
+    public function activate(int $id_prestation){
+        try {
+            // Facciamo partire il metodo activate per attivare la perstazione
+            $row = $this->prestationsService->activate($id_prestation);
+
+            // Se vi è 1 riga attivata con successo, se 0 esistente ma non aggiornata (uguale) e false non trovata
+            if ($row === 1) {
+                // Inviamo il Json di risposta al client che la prestazione è stata aggiornata
+                sendJson(['message' => 'Prestazione attivata con successo', 'id' => $id_prestation], 200);
+            } elseif ($row === 0) {
+                // Inviamo il Json di risposta al client che la prestazione è uguale a prima
+                sendJson(['message' => 'Prestazione già impostata su Attivo', 'id' => $id_prestation], 200);
             } elseif ($row === false) {
                 // Inviamo il Json di risposta al client che la prestazione non è stata trovata
                 sendJson(['error' => 'Prestazione non trovata'], 404);

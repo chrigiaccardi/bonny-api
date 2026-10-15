@@ -23,6 +23,7 @@ if ($method === 'POST' && $path === '/prestations') {
     2. con preg_match estraiamo dal path il numero dell'id e lo inseriamo nell'array matches
     3. l'id_prestation è uguale alla conversione in int del valore 1 dell'array matches*/
 $pattern = "#^/prestations/(\d+)$#";
+
 if ($method === 'PUT' && (preg_match($pattern, $path, $matches) === 1)) {
     $id_prestation = intval($matches[1]);
     // Recuperato l'id_prestation lo inseriamo nel metodo update()
@@ -33,5 +34,10 @@ if($method === 'DELETE' && (preg_match($pattern, $path, $matches) === 1)) {
     $id_prestation = intval($matches[1]);
     // Recuperato l'id_prestation lo inseriamo nel metodo update()
     $prestationsController->deactivate($id_prestation);
+}
+
+if ($method === 'PATCH' && (preg_match($pattern, $path, $matches) === 1)) {
+    $id_prestation = intval($matches[1]);
+    $prestationsController->activate($id_prestation);
 }
 

@@ -103,14 +103,18 @@ class PrestationsService{
     }
 
     // Validazione metodo activate(int $id_prestation)
-    public function activate(int $id_prestation): int
+    public function activate(int $id_prestation): int|false
     {
         // Validazione del parametro ID
         $this->validateId($id_prestation);
 
-        // Eseguiamo il metodo activate() dal repository e ritorniamo il numero di record attivati
-        $row = $this->prestationsRepository->activate($id_prestation);
-        return $row;
+        // Verifichiamo l'esistenza dell'id_prestation in ingresso
+        if ($this->prestationsRepository->existsById($id_prestation)) {
+            // Eseguiamo il metodo update() del repository e ritorniamo il numero di record aggiornati
+            $row = $this->prestationsRepository->activate($id_prestation);
+            return $row;
+        }
+        return false;
     }
 
 }
