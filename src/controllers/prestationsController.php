@@ -187,7 +187,4 @@ class PrestationsController {
             sendJson(['error' => $messageError], 422);
         }
     }
-
-
-
 }
