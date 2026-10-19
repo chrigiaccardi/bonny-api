@@ -176,7 +176,6 @@ class SalesRepository {
         3. Per ogni dettaglio, recuperare il time_saved della prestazione attiva.
         4. Inserire il dettaglio collegandolo alla vendita esistente e salvando time_saved_snapshot.
         5. Eseguire commit() se tutto va bene; in caso di errore, rollback(). */
-
     function updateDetails(int $id_sale, array $details):int {
         try {
             // Effetuiamo una verifica che la vendita effettivamente esista tramite l'id
@@ -282,29 +281,46 @@ class SalesRepository {
                 // Verifichiamo che il dettaglio sia stato effettivamente eliminato oppure no
                 $checkDeleteDetail = $stmtDeleteDetail->rowCount();
 
-                /* Eseguiamo una query per verificare quanti settagli sono rimasti nella vendita.
-                Se 0 dopo la l'eliminazione allora dobbiamo di conseguenza eliminare anche la vendita */
-                $queryCheckDetailsSale = "SELECT COUNT(*) FROM " . SalesRepository::TABLE_SALES_DETAILS . " WHERE id_sale = :id_sale";
+                // Se il dettaglio è stato eliminato con successo allora controlliamo quanti dettagli sono presenti nella vendita
+                if ($checkDeleteDetail === 1) {
+                    /* Eseguiamo una query per verificare quanti dettagli sono rimasti nella vendita.
+                    Se 0 dopo la l'eliminazione allora dobbiamo di conseguenza eliminare anche la vendita */
+                    $queryCheckDetailsSale = "SELECT COUNT(*) FROM " . SalesRepository::TABLE_SALES_DETAILS . " WHERE id_sale = :id_sale";
 
-                //Prepariamo lo statement, eseguiamo il bindValue e eseguiamo la query
-                $stmtCheckDetailsSale = $this->pdo->prepare($queryCheckDetailsSale);
-                $stmtCheckDetailsSale->bindValue(':id_sale', $id_sale, PDO::PARAM_INT);
-                $stmtCheckDetailsSale->execute();
+                    //Prepariamo lo statement, eseguiamo il bindValue e eseguiamo la query
+                    $stmtCheckDetailsSale = $this->pdo->prepare($queryCheckDetailsSale);
+                    $stmtCheckDetailsSale->bindValue(':id_sale', $id_sale, PDO::PARAM_INT);
+                    $stmtCheckDetailsSale->execute();
 
-                // Recuperiamo il valore restituito da count
-                $remainingDetailsSale = $stmtCheckDetailsSale->fetchColumn();
+                    // Recuperiamo il valore restituito da count con fetchColumn e con (int) lo trasformiamo in intero
+                    $remainingDetailsSale = (int) $stmtCheckDetailsSale->fetchColumn();
 
-                // Se la rimanenza nella vendita è zero allora dobbiamo eliminare quella specifica vendita
-                if ($remainingDetailsSale === 0) {
-                    // Query per eliminare la vendita
-                } else {
-                    # code...
+                    // Se la rimanenza nella vendita è zero allora dobbiamo eliminare quella specifica vendita
+                    if ($remainingDetailsSale === 0) {
+                        // Query per eliminare la vendita
+                        $queryDeleteSale = "DELETE FROM " . SalesRepository::TABLE_SALES . " WHERE id = :id_sale";
+
+                        //Prepariamo lo statemenr, bindValue e eseguiamo la query
+                        $stmtDeleteSale = $this->pdo->prepare($queryDeleteSale);
+                        $stmtDeleteSale->bindValue(':id_sale', $id_sale, PDO::PARAM_INT);
+                        $stmtDeleteSale->execute();
+                    }
                 }
+
+                // Chiudiamo ed eseguiamo la transaction con commit
+                $this->pdo->commit();
+
+                //Ritorniamo $checkDeleteDetail 1 per confermare la corretta esecuzione dell'aggiornamento o 0 se la vendita non esiste
+                return $checkDeleteDetail;
                 
 
             } catch (Throwable $error) {
-                //throw $th;
-            }  
+                // Se la transizione è ancora attiva la interrompiamo e mandiamo vari errori o eccezzioni al service che li gestirà
+                if ($this->pdo->inTransaction()) {
+                    $this->pdo->rollBack();
+                }
+                throw $error;
+            }
         }
     }
 
