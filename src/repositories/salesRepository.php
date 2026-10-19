@@ -60,7 +60,8 @@ class SalesRepository {
 
         /* Recuperiamo i dati con un array associativo: può essere che ci sia solo una riga 
         per una singola vendita con una prestazione oppure più righe, quindi più prestazioni
-        per la singola vendita*/
+        per la singola vendita.
+        Nel caso che l'id non esista fetchAll() restituisce un array vuoto*/
         $sale = $stmt->fetchAll();
 
         // Ritorniamo la vendita selezionata
@@ -75,7 +76,7 @@ class SalesRepository {
         4. Si esegue la query per inserire i dettagli della vendita collegati all'id della vendita
         5. Concluso si ritorna l'id della vendita appena creata 
         5.1 Se vi sono errori o eccezioni vengono rilanciate e gestite poi dal service. */
-    function create(array $details){
+    function create(array $details):int {
         try {
             // Facciamo partire la transaction: permette di eseguire un gruppo di query SQL in una unica soluzione
             $this->pdo->beginTransaction();
@@ -322,6 +323,22 @@ class SalesRepository {
                 throw $error;
             }
         }
+    }
+
+    // Creiamo il metodo existsById() per verificare tramite query che l'id_sale esista nella tabella
+    function existsById(int $id_sale): bool
+    {
+        // Creiamo la query che cerca il record giusto tramite l'id
+        $query = "SELECT EXISTS (SELECT 1 FROM " . SalesRepository::TABLE_SALES . " WHERE id = :id)";
+
+        // Prepariamo lo statement, effettuaimo il bindValue e eseguiamo lo statement
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindValue(':id', $id_sale, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // fetchColumn() restituisce 1/0 in base alla presenza, con (bool) lo trasformiamo in true/false
+        $booleanResult = (bool) $stmt->fetchColumn();
+        return $booleanResult;
     }
 
 }
