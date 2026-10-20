@@ -9,7 +9,7 @@ use Bonny\repositories\SalesRepository;
 use InvalidArgumentException;
 
 class SalesService{
-    // Dichiariamo una proprietà $prestationsRepository affinchè ogni PrestationsService abbia la sua proprietà privata
+    // Dichiariamo una proprietà $salesRepository affinchè ogni salesService abbia la sua proprietà privata
     private SalesRepository $salesRepository;
 
     /* Con il costruttore dichiariamo che l'oggetto di tipo PrestationsRepository
