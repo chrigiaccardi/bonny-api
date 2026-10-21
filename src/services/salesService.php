@@ -98,7 +98,7 @@ class SalesService{
     /* Validazione metodo delete():
         1. Validiamo l'id in ingresso;
         2. Chiamiamo il metodo delete() dal salesRepository;
-        3. Ritorniamo il record eliminato1 oppure non eliminato 0. */
+        3. Ritorniamo il record eliminato 1 oppure non eliminato 0. */
     public function delete(int $id_sale):int {
         $this->validateId($id_sale);
         $deletedRow = $this->salesRepository->delete($id_sale);

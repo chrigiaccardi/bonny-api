@@ -311,7 +311,7 @@ class SalesRepository {
                 // Chiudiamo ed eseguiamo la transaction con commit
                 $this->pdo->commit();
 
-                //Ritorniamo $checkDeleteDetail 1 per confermare la corretta esecuzione dell'aggiornamento o 0 se la vendita non esiste
+                //Ritorniamo $checkDeleteDetail 1 per confermare la corretta esecuzione della cancellazione o 0 se la vendita non esiste
                 return $checkDeleteDetail;
                 
 
