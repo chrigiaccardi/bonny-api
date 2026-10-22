@@ -19,9 +19,11 @@ if ($method === 'POST' && $path === '/prestations') {
 
 /* Per quanto riguarda la route di aggiornamento ci sono più passaggi da fare:
     Tramite regex recuperiamo l'id_prestation da poterlo utilizzare nel metodo update()
-    1. Creiamo il pattern dove (\d+) estrae l'il numero presente
-    2. con preg_match estraiamo dal path il numero dell'id e lo inseriamo nell'array matches
-    3. l'id_prestation è uguale alla conversione in int del valore 1 dell'array matches*/
+    1. Creiamo il pattern dove (\d+) estrae l'il numero presente;
+    2. con preg_match estraiamo dal path il numero dell'id e lo inseriamo nell'array matches;
+    3. l'id_prestation è uguale alla conversione in int del valore 1 dell'array matches;
+    4. Chiamiamo il metodo con l'id_prestation estratto. */
+    
 $pattern = "#^/prestations/(\d+)$#";
 
 if ($method === 'PUT' && (preg_match($pattern, $path, $matches) === 1)) {

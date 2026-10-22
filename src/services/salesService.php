@@ -124,7 +124,7 @@ class SalesService{
         2. Validazione id_detail in ingresso;
         3. Chiamiamo il metodo deleteDetail dal salesRepository;
         4. Ritorniamo il risultato: 1 per avvenuta cancellazione, 0 per dettaglio non presente. */
-    public function deleteDetail(int $id_sale, int $id_detail):int {
+    public function deleteDetail(int $id_sale, int $id_detail):int|false {
         $this->validateId($id_sale);
         $this->validateId($id_detail);
         $resultDelete = $this->salesRepository->deleteDetail($id_sale, $id_detail);

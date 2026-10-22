@@ -132,11 +132,27 @@ class SalesController{
         }
     }
 
-    /* Metodo deleteDetails:
-    Ragionare il fatto che potrebbero esserci 3 casi:
-        1. false in caso che il dettaglio nella vendita non esista;
-        2. In caso che il dettaglio venga eliminato con successo;
-        3. Il caso che la vendita venga eliminata con successo e che la vendita anche venga eliminata.*/
+    /* Metodo deleteDetails():
+      1. Facciamo partire il metodo del Service e possiamo ottenere 3 distinti esiti;
+      2. Gestiamo la casistica false per dettaglio non presente nella vendita;
+      3. Gestiamo la casistica 0 per eliminazione corretta del dettaglio;
+      4. Gestiamo la casistica 1 per l'eliminazione dell'ultimo dettaglio e della vendita stessa;
+      5. gestiamo i vari errori nel catch. */
+    public function deleteDetail(int $id_sale, int $id_detail){
+        try {
+            $resultDelete = $this->salesService->deleteDetail($id_sale, $id_detail);
+            if ($resultDelete === false) {
+                sendJson(['error' => "Il dettaglio non è presente all'interno della vendita n. " . $id_sale . "."], 404);
+            } elseif ($resultDelete === 0) {
+                sendJson(['message' => "Il dettaglio n. " . $id_detail . " è stato eliminato correttamente dalla vendita n. " . $id_sale . "."], 200);
+            } elseif ($resultDelete === 1) {
+                sendJson(['message' => "Il dettaglio n. " . $id_detail . " e la vendita n. " . $id_sale . " sono state eliminate."], 200);
+            }
+        } catch (Throwable $error) {
+            $messageError = $error->getMessage();
+            sendJson(['error' => $messageError], 422);
+        }
+    }
     
 
 }

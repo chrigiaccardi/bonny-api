@@ -249,7 +249,7 @@ class SalesRepository {
     }
 
     // Metodo deleteDetail: eliminare un dettaglio specifico di una specifica vendita
-    function deleteDetail(int $id_sale, int $id_detail){
+    function deleteDetail(int $id_sale, int $id_detail):int|false {
         // Per prima cosa dobbiamo controllare che il dettaglio sia effettivamente presente nella vendita
         $queryDetailSale = "SELECT id FROM " . SalesRepository::TABLE_SALES_DETAILS . " WHERE id_sale = :id_sale AND id = :id_detail";
 
@@ -264,7 +264,7 @@ class SalesRepository {
 
         // Se il dettaglio non esiste nella vendita selezionata allora ritorniamo subito
         if ($checkDetailSale === false) {
-            return 0;
+            return $checkDetailSale;
         } else {
             try {
                 // Facciamo partire la transaction: permette di eseguire un gruppo di query SQL in una unica soluzione
@@ -305,16 +305,19 @@ class SalesRepository {
                         $stmtDeleteSale = $this->pdo->prepare($queryDeleteSale);
                         $stmtDeleteSale->bindValue(':id_sale', $id_sale, PDO::PARAM_INT);
                         $stmtDeleteSale->execute();
+
+                        // Chiudiamo ed eseguiamo la transaction con commit
+                        $this->pdo->commit();
+                        
+                        // Ritorniamo 1 per la conferma dell'eliminazione anche della vendita
+                        return 1;
                     }
                 }
-
                 // Chiudiamo ed eseguiamo la transaction con commit
                 $this->pdo->commit();
 
-                //Ritorniamo $checkDeleteDetail 1 per confermare la corretta esecuzione della cancellazione o 0 se la vendita non esiste
-                return $checkDeleteDetail;
-                
-
+                /* Ritorniamo 0 visto che è stata effettuata solo la cancellazione del dettaglio */
+                return 0;
             } catch (Throwable $error) {
                 // Se la transizione è ancora attiva la interrompiamo e mandiamo vari errori o eccezzioni al service che li gestirà
                 if ($this->pdo->inTransaction()) {
