@@ -7,9 +7,12 @@ Il suo compito è quello di leggere l'url della richiesta e capire il metodo HTT
 Utilizziamo __DIR__ per il percorso assoluto. */
 
 use Bonny\controllers\PrestationsController;
+use Bonny\controllers\SalesController;
 use Bonny\database\Connection;
 use Bonny\repositories\PrestationsRepository;
+use Bonny\repositories\SalesRepository;
 use Bonny\services\PrestationsService;
+use Bonny\services\SalesService;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -35,12 +38,16 @@ $pdo = $connection->getConnection();
 
 // Creiamo l'oggetto Repository passando pdo
 $prestationsRepository = new PrestationsRepository($pdo);
+$salesRepository = new SalesRepository($pdo);
 
 // Creiamo l'oggetto Service passando il repository
 $prestationsService = new PrestationsService($prestationsRepository);
+$salesService = new SalesService($salesRepository);
 
 // Creiamo l'oggetto controller passando il service
 $prestationsController = new PrestationsController($prestationsService);
+$salesController = new SalesController($salesService);
 
 // Includiamo il routing per poterlo utilizzare
 require __DIR__ . "/../src/routes/prestationsRoutes.php";
+require __DIR__ . "/../src/routes/salesRoutes.php";

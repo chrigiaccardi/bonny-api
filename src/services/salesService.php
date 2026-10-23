@@ -45,7 +45,7 @@ class SalesService{
 
             // Mandiamo un'eccezione se l'id non è un intero o se è minore di 1
             if (!is_int($id_prestation) || $id_prestation < 1) {
-                throw new InvalidArgumentException("L'ID non è valido, inserire valore maggiore o uguale a 1.");
+                throw new InvalidArgumentException("L'ID non e' valido, inserire valore maggiore o uguale a 1.");
             }
 
             // Mandiamo un'eccezione se la quantità non è un intero o se è minore di 1
@@ -56,7 +56,7 @@ class SalesService{
             // Verifichiamo che non ci siano presenti duplicati di prestazioni nel singolo dettaglio
             // in_array verifica che il valore sia presente nell'array specificato e con true la tipizzazione
             if (in_array($id_prestation, $prestationsIds, true)){
-                throw new InvalidArgumentException("La prestazione ID " . $id_prestation . " è già stata inserita.");
+                throw new InvalidArgumentException("DUPLICAZIONE: La prestazione ID " . $id_prestation . " è già stata inserita.");
             } else {
                 // Inseriamo l'id nell'array così che al prossimo giro sia presente
                 $prestationsIds[] = $id_prestation;
@@ -111,11 +111,11 @@ class SalesService{
         3. Validazione degli elementi dell'array details;
         4. Chiamiamo il metodo updateDetails dal salesREpository;
         5. Ritorniamo il risultato per l'avvenuto aggiornamento: 1 vendita aggiornata, 0 vendita non presente. */
-    public function updateDetails(int $id_sale, array $details):int {
+    public function addDetails(int $id_sale, array $details):int {
         $this->validateId($id_sale);
         $this->validateDetails($details);
         $this->validateElementsDetails($details);
-        $resultUpdate = $this->salesRepository->updateDetails($id_sale, $details);
+        $resultUpdate = $this->salesRepository->addDetails($id_sale, $details);
         return $resultUpdate;
     }
 

@@ -40,32 +40,39 @@ class SalesController{
 
     /* Metodo create():
     1. Recuperiamo i dati inviati dal client con la funzione readJsonInput();
+    2. Con un foreach verifichiamo che per ogni dettaglio dentro dettagli esistano i campi e
     2. Controlliamo che i campi esistano;
     3. Controlliamo che i campi siano di tipizzazione corretta;
     4. Effettuiamo un try/catch per la gestione degli errori ed eccezioni;
     5. Dentro il try chiamiamo il metodo create e inviamo un messaggio di successo;
     6. Se c'è un errore si entra nel catch, lo estraiamo e lo mandiamo al client. */
     public function create(){
-        $details = readJsonInput();
-
-        if (!array_key_exists('id_prestation', $details)) {
-            sendJson(['error' => 'Il campo Prestazione è obbligatorio'], 422);
-        }
-
-        if (!array_key_exists('quantity', $details)) {
-            sendJson(['error' => 'Il campo Quantità è obbligatorio'], 422);
-        }
-
-        if (!is_int($details['id_prestation'])) {
-            sendJson(['error' => "Impossibile aggiungere la prestazione selezionata. Verifica la selezione e riprova."]);
-        }
-
-        if (!is_int($details['quantity'])) {
-            sendJson(['error' => "La quantità è stata inserita con un formato errato. Riprova"]);
-        }
-
         try {
+            $details = readJsonInput();
+            if (!array_is_list($details)) {
+                sendJson(['error' => 'La lista di dettagli da inserire nella vendita ha un formato errato'],422);
+            }
+
+            foreach ($details as $detail) {
+                if (!array_key_exists('id_prestation', $detail)) {
+                sendJson(['error' => 'Il campo Prestazione è obbligatorio'], 422);
+                }
+
+                if (!array_key_exists('quantity', $detail)) {
+                    sendJson(['error' => 'Il campo Quantità è obbligatorio'], 422);
+                }
+
+                if (!is_int($detail['id_prestation'])) {
+                    sendJson(['error' => "Impossibile aggiungere la prestazione selezionata. Verifica la selezione e riprova."], 422);
+                }
+
+                if (!is_int($detail['quantity'])) {
+                    sendJson(['error' => "La quantità è stata inserita con un formato errato. Riprova"],422);
+                }
+            }
+
             $id_sale = $this->salesService->create($details);
+
             sendJson(['message' => "La vendita n. " . $id_sale . " è stata creata con successo."], 201);
         } catch (Throwable $error) {
             $messageError = $error->getMessage();
@@ -82,9 +89,9 @@ class SalesController{
         try {
             $deletedRow = $this->salesService->delete($id_sale);
             if ($deletedRow === 1) {
-                sendJson(['message' => "La vendita n. " . $id_sale . " è stata eliminata con successo"], 200);
+                sendJson(['message' => "La vendita n. " . $id_sale . " è stata eliminata con successo."], 200);
             } elseif ($deletedRow === 0){
-                sendJson(['erroe' => "Errore nella cancellazione della vendita n. " . $id_sale . "."], 422);
+                sendJson(['erroe' => "Errore nella cancellazione della vendita n. " . $id_sale . ", la vendita non esiste."], 422);
             }
         } catch (Throwable $error) {
             $messageError = $error->getMessage();
@@ -92,34 +99,36 @@ class SalesController{
         }
     }
 
-    /* Metodo updateDetails():
+    /* Metodo addDetails():
         1. In ingresso riceviamo l'id della vendita da aggiornare;
         2. Recuperiamo i dati in ingresso dal client;
         3. Validiamo i dati controllando che esistano e che siano tipizzati correttamente;
         4. Gestiamo il caso che l'aggiornamento sia andato a buon fine 1;
         4. Gestiamo il caso che la vendita non esista 0; 
         5. Gestiamo eventuali errori nel catch. */
-    public function updateDetails(int $id_sale){
-        $details = readJsonInput();
-
-        if (!array_key_exists('id_prestation', $details)) {
-            sendJson(['error' => 'Il campo Prestazione è obbligatorio'], 422);
-        }
-
-        if (!array_key_exists('quantity', $details)) {
-            sendJson(['error' => 'Il campo Quantità è obbligatorio'], 422);
-        }
-
-        if (!is_int($details['id_prestation'])) {
-            sendJson(['error' => "Impossibile aggiungere la prestazione selezionata. Verifica la selezione e riprova."]);
-        }
-
-        if (!is_int($details['quantity'])) {
-            sendJson(['error' => "La quantità è stata inserita con un formato errato. Riprova"]);
-        }
-
+    public function addDetails(int $id_sale){
         try {
-            $resultUpdate = $this->salesService->updateDetails($id_sale, $details);
+            $details = readJsonInput();
+
+            foreach ($details as $detail) {
+                if (!array_key_exists('id_prestation', $detail)) {
+                sendJson(['error' => 'Il campo Prestazione è obbligatorio'], 422);
+                }
+
+                if (!array_key_exists('quantity', $detail)) {
+                    sendJson(['error' => 'Il campo Quantità è obbligatorio'], 422);
+                }
+
+                if (!is_int($detail['id_prestation'])) {
+                    sendJson(['error' => "Impossibile aggiungere la prestazione selezionata. Verifica la selezione e riprova."], 422);
+                }
+
+                if (!is_int($detail['quantity'])) {
+                    sendJson(['error' => "La quantità è stata inserita con un formato errato. Riprova"],422);
+                }
+            }
+
+            $resultUpdate = $this->salesService->addDetails($id_sale, $details);
 
             if ($resultUpdate === 1) {
                 sendJson(['message' => "La vendita n. " . $id_sale . " è stata aggiornata con successo"], 200);
@@ -134,25 +143,26 @@ class SalesController{
 
     /* Metodo deleteDetails():
       1. Facciamo partire il metodo del Service e possiamo ottenere 3 distinti esiti;
-      2. Gestiamo la casistica false per dettaglio non presente nella vendita;
-      3. Gestiamo la casistica 0 per eliminazione corretta del dettaglio;
-      4. Gestiamo la casistica 1 per l'eliminazione dell'ultimo dettaglio e della vendita stessa;
-      5. gestiamo i vari errori nel catch. */
+      2. Gestiamo la casistica false per la vendita che non esiste;
+      3. Gestiamo la casistica 0 la vendita esiste ma il suo dettaglio no;
+      4. Gestiamo la casistica 1 per l'eliminazione corretta di un dettaglio;
+      5. Gestiamo la casistica 2 per l'eliminazione corretta di un ultimo dettaglio e della vendita stessa di conseguenza;
+      6. gestiamo i vari errori nel catch. */
     public function deleteDetail(int $id_sale, int $id_detail){
         try {
             $resultDelete = $this->salesService->deleteDetail($id_sale, $id_detail);
             if ($resultDelete === false) {
-                sendJson(['error' => "Il dettaglio non è presente all'interno della vendita n. " . $id_sale . "."], 404);
+                sendJson(['error' => "La vendita n." . $id_sale . " non esiste."], 404);
             } elseif ($resultDelete === 0) {
-                sendJson(['message' => "Il dettaglio n. " . $id_detail . " è stato eliminato correttamente dalla vendita n. " . $id_sale . "."], 200);
+                sendJson(['error' => "Il dettaglio non è presente all'interno della vendita n." . $id_sale . "."], 404);
             } elseif ($resultDelete === 1) {
-                sendJson(['message' => "Il dettaglio n. " . $id_detail . " e la vendita n. " . $id_sale . " sono state eliminate."], 200);
+                sendJson(['message' => "Il dettaglio n." . $id_detail . " è stato eliminato correttamente dalla vendita n." . $id_sale . "."], 200);
+            } elseif ($resultDelete === 2) {
+                sendJson(['message' => "Il dettaglio n." . $id_detail . " e la vendita n." . $id_sale . " sono state eliminate."], 200);
             }
         } catch (Throwable $error) {
             $messageError = $error->getMessage();
             sendJson(['error' => $messageError], 422);
         }
     }
-    
-
 }

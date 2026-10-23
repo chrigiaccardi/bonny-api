@@ -1,6 +1,6 @@
 <?php
 /* Il file prestationsRoutes riceve una chiamata HTTP ed, in base
-alla rotta, decide quale Controller utilizzare e quale metodo. */
+all'url, decide quale Controller utilizzare e quale metodo. */
 
 // Inseriamo un namespace per non avere conflitti in futuro e identificare la classe all'interno dell'architettura
 namespace Bonny\routes;

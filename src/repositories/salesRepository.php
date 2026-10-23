@@ -31,7 +31,8 @@ class SalesRepository {
         $query = "SELECT s.id, s.sale_date, p.name, sd.quantity 
             FROM " . SalesRepository::TABLE_SALES . " s 
             INNER JOIN sales_details sd ON s.id = sd.id_sale 
-            INNER JOIN prestations p ON p.id = sd.id_prestation";
+            INNER JOIN prestations p ON p.id = sd.id_prestation
+            ORDER BY s.id ASC, sd.id ASC";
 
         // Prepariamo lo statement e lo eseguiamo
         $stmt = $this->pdo->prepare($query);
@@ -177,7 +178,7 @@ class SalesRepository {
         3. Per ogni dettaglio, recuperare il time_saved della prestazione attiva.
         4. Inserire il dettaglio collegandolo alla vendita esistente e salvando time_saved_snapshot.
         5. Eseguire commit() se tutto va bene; in caso di errore, rollback(). */
-    function updateDetails(int $id_sale, array $details):int {
+    function addDetails(int $id_sale, array $details):int {
         try {
             // Effetuiamo una verifica che la vendita effettivamente esista tramite l'id
             $querySale = "SELECT id FROM " . SalesRepository::TABLE_SALES . " WHERE id = :id";
@@ -250,7 +251,22 @@ class SalesRepository {
 
     // Metodo deleteDetail: eliminare un dettaglio specifico di una specifica vendita
     function deleteDetail(int $id_sale, int $id_detail):int|false {
-        // Per prima cosa dobbiamo controllare che il dettaglio sia effettivamente presente nella vendita
+        // 1. Dobbiamo controllare che la vendita esista
+        // Creiamo la query che cerca il record giusto tramite l'id
+        $query = "SELECT EXISTS (SELECT 1 FROM " . SalesRepository::TABLE_SALES . " WHERE id = :id)";
+
+        // Prepariamo lo statement, effettuaimo il bindValue e eseguiamo lo statement
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindValue(':id', $id_sale, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // fetchColumn() restituisce 1/0 in base alla presenza, con (bool) lo trasformiamo in true/false
+        $booleanResultSale = (bool) $stmt->fetchColumn();
+
+        if ($booleanResultSale === false) {
+            return false;
+        } else {
+            // 2. dobbiamo controllare che il dettaglio sia effettivamente presente nella vendita
         $queryDetailSale = "SELECT id FROM " . SalesRepository::TABLE_SALES_DETAILS . " WHERE id_sale = :id_sale AND id = :id_detail";
 
         //Prepariamo lo statement, eseguiamo il bindValue e eseguiamo la query
@@ -261,10 +277,11 @@ class SalesRepository {
 
         // Troviamo il record o no in base alla presenta del dettaglio in quella precisa vendita
         $checkDetailSale = $stmtDetailSale->fetch();
-
+        }
+        
         // Se il dettaglio non esiste nella vendita selezionata allora ritorniamo subito
         if ($checkDetailSale === false) {
-            return $checkDetailSale;
+            return 0;
         } else {
             try {
                 // Facciamo partire la transaction: permette di eseguire un gruppo di query SQL in una unica soluzione
@@ -309,15 +326,15 @@ class SalesRepository {
                         // Chiudiamo ed eseguiamo la transaction con commit
                         $this->pdo->commit();
                         
-                        // Ritorniamo 1 per la conferma dell'eliminazione anche della vendita
-                        return 1;
+                        // Ritorniamo 2 per la conferma dell'eliminazione anche della vendita
+                        return 2;
                     }
                 }
                 // Chiudiamo ed eseguiamo la transaction con commit
                 $this->pdo->commit();
 
-                /* Ritorniamo 0 visto che è stata effettuata solo la cancellazione del dettaglio */
-                return 0;
+                /* Ritorniamo 1 visto che è stata effettuata solo la cancellazione del dettaglio */
+                return 1;
             } catch (Throwable $error) {
                 // Se la transizione è ancora attiva la interrompiamo e mandiamo vari errori o eccezzioni al service che li gestirà
                 if ($this->pdo->inTransaction()) {
