@@ -6,6 +6,7 @@ può tradurre/gestire determinate eccezioni applicative..
 namespace Bonny\services;
 
 use Bonny\repositories\SalesRepository;
+use DateTime;
 use InvalidArgumentException;
 
 class SalesService{
@@ -61,6 +62,21 @@ class SalesService{
                 // Inseriamo l'id nell'array così che al prossimo giro sia presente
                 $prestationsIds[] = $id_prestation;
             }
+        }
+    }
+
+    /* Validiamo le date in ingresso, che siano nel formato giusto e che siano reali. */
+    private function validateDate(string $date){
+        $pattern = "#^(\d{4})-(\d{2})-(\d{2})$#";
+        $resultDate = preg_match($pattern, $date, $matches);
+        if ($resultDate) {
+            $year = $matches[1];
+            $month = $matches[2];
+            $day = $matches[3];
+        }
+        
+        if (!$resultDate || !checkdate($month, $day, $year)) {
+            throw new InvalidArgumentException("La data è stata inserita in un formato errato");
         }
     }
 
@@ -129,5 +145,26 @@ class SalesService{
         $this->validateId($id_detail);
         $resultDelete = $this->salesRepository->deleteDetail($id_sale, $id_detail);
         return $resultDelete;
+    }
+
+    /* Validazione metodo getTotalTimeSaved():
+        1. Se id_prestation esiste, validazione dello stesso in ingresso;
+        2. Se start_date esiste, validazione dello stesso in ingresso;
+        3. Se end_date esiste, validazione dello stesso in ingresso;
+        4. Chiamiamo il metodo getTotalTimeSaved dal salesRepository;
+        5. Ritorniamo il risultato ottenuto. */
+    public function getTotalTimeSaved(?int $id_prestation, ?string $start_date, ?string $end_date):int {
+        if ($id_prestation) {
+            $this->validateId($id_prestation);
+        }
+        if ($start_date) {
+            $this->validateDate($start_date);
+        }
+        if ($end_date) {
+            $this->validateDate($end_date);
+        }
+        
+        
+        
     }
 }

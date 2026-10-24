@@ -361,17 +361,50 @@ class SalesRepository {
         return $booleanResult;
     }
 
-    // Creiamo il metodo getTotalTimeSaved() per il calcolo totale del tempo risparmiato dalle vendite delle prestazioni
-    function getTotalTimeSaved():int {
-        /* Query SQL: 
-            1. Utilizziamo SUM per la somma della moltiplicazione tra time_saved_snapshot e quantity,
+    /* Creiamo il metodo getTotalTimeSaved() per il calcolo totale del tempo risparmiato dalle vendite delle prestazioni:
+        1. In ingresso abbiamo i tre parametri opzionali;
+        2. Query SQL: 
+            2.1. Utilizziamo SUM per la somma della moltiplicazione tra time_saved_snapshot e quantity,
                 SUM se il valore è 0 da null.
-            2. Utilizziamo COALESCE per trasformare il primo valore in 0 nel caso fosse null; */
-        $query = "SELECT COALESCE(SUM(time_saved_snapshot * quantity), 0) FROM " . SalesRepository::TABLE_SALES_DETAILS;
+            2.2. Utilizziamo COALESCE per trasformare il primo valore in 0 nel caso fosse null;
+        3. Creiamo un array vuoto per i parametri $params;
+        4. Creiamo un array vuoto per le condizioni possibili della query $conditions;
+        4. Se il parametro id_prestation è presente allora salva il pezzo di query in $conditions e il parametro nell'array $params;
+        5. Se è presente una data o entrambe viene aggiunto l'inner join alla query per collegare la data di vendita;
+        6. Se la data di inizio è presente aggiungiamo a $condition il pezzo di query  e il parametro in $params;
+        7. Se la data di fine è presente aggiungiamo a $condition il pezzo di query  e il parametro in $params;
+        8. Se l'array conditions non è vuoto aggiungiamo il pezzo di query con implode per mettere un separatore AND alle varie condizioni;
+        9. Prepariamo lo statement con la query dinamica;
+        10. Eseguiamo la query passando in ingresso i parametri;
+        11. Il valore restituito lo trasformiamo in intero (int) e lo salviamo in $totalTimeSaved;
+        12. Restituiamo il valore $totalTimeSaved. */
+    function getTotalTimeSaved(?int $id_prestation, ?string $start_date, ?string $end_date):int {
+         
+        $query = "SELECT COALESCE(SUM(sd.time_saved_snapshot * sd.quantity), 0) FROM " . SalesRepository::TABLE_SALES_DETAILS . " sd";
+        $params = [];
+        $conditions = [];
 
-        // Prepariamo lo statement e eseguiamo lo statement
+        if ($id_prestation !== null) {
+            $conditions[] = "sd.id_prestation = :id_prestation";
+            $params[':id_prestation'] = (int) $id_prestation;
+        }
+        if ($start_date !== null || $end_date !== null) {
+            $query .= " INNER JOIN " . SalesRepository::TABLE_SALES . " s ON s.id = sd.id_sale";
+        }
+        if ($start_date !== null) {
+            $conditions[] = "s.sale_date >= :start_date";
+            $params[':start_date'] = $start_date;
+        }
+        if ($end_date !== null) {
+            $conditions[] = "s.sale_date <= :end_date";
+            $params[':end_date'] = $end_date;
+        }
+        if ($conditions !== []) {
+            $query .= " WHERE " . implode(' AND ', $conditions);
+        }
+
         $stmt = $this->pdo->prepare($query);
-        $stmt->execute();
+        $stmt->execute($params);
 
         $totalTimeSaved = (int) $stmt->fetchColumn();
 
