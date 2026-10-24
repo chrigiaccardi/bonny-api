@@ -21,6 +21,41 @@ class SalesController{
         $this->salesService = $salesService;
     }
 
+    // Creazione di funzioni private per riutilizzarle dentro i metodo (DRY):
+
+    /* Funzione validateArray():
+        1. Validiamo che l'array in ingresso sia di formato lista;
+        2. Con un foreach verifichiamo che per ogni dettaglio dentro dettagli:
+            2.1. Controlliamo che il singolo dettaglio sia un array;
+            2.2. Controlliamo che i campi esistano;
+            2.3. Controlliamo che i campi siano di tipizzazione corretta; */
+    private function validateArray($details){
+        if (!array_is_list($details)) {
+                sendJson(['error' => 'La lista di dettagli da inserire nella vendita ha un formato errato'],422);
+            }
+
+            foreach ($details as $detail) {
+                if (!is_array($detail)) {
+                    sendJson(['error' => 'Dettaglio inserito con il formato errato'], 422);
+                }
+                if (!array_key_exists('id_prestation', $detail)) {
+                    sendJson(['error' => 'Il campo Prestazione è obbligatorio'], 422);
+                }
+
+                if (!array_key_exists('quantity', $detail)) {
+                    sendJson(['error' => 'Il campo Quantità è obbligatorio'], 422);
+                }
+
+                if (!is_int($detail['id_prestation'])) {
+                    sendJson(['error' => "Impossibile aggiungere la prestazione selezionata. Verifica la selezione e riprova."], 422);
+                }
+
+                if (!is_int($detail['quantity'])) {
+                    sendJson(['error' => "La quantità è stata inserita con un formato errato. Riprova"],422);
+                }
+            }
+    }
+
     /* metodo getAll(): 
         1. Otteniamo l'array di tutte le vendite effettuate chiamando il salesService.;
         2. Trasformiamo l'array in json con la funzione sendJson, senza statusCode di default 200. */
@@ -39,40 +74,16 @@ class SalesController{
     }
 
     /* Metodo create():
-    1. Recuperiamo i dati inviati dal client con la funzione readJsonInput();
-    2. Con un foreach verifichiamo che per ogni dettaglio dentro dettagli esistano i campi e
-    2. Controlliamo che i campi esistano;
-    3. Controlliamo che i campi siano di tipizzazione corretta;
-    4. Effettuiamo un try/catch per la gestione degli errori ed eccezioni;
-    5. Dentro il try chiamiamo il metodo create e inviamo un messaggio di successo;
-    6. Se c'è un errore si entra nel catch, lo estraiamo e lo mandiamo al client. */
+    1. Effettuiamo un try/catch per la gestione degli errori ed eccezioni;
+    2. Recuperiamo i dati inviati dal client con la funzione readJsonInput();
+    3. Avviamo la funzione privata validateArray() per la validazione dell'array in ingresso;
+    4. Chiamiamo il metodo create e inviamo un messaggio di successo;
+    5. Se c'è un errore si entra nel catch, lo estraiamo e lo mandiamo al client. */
     public function create(){
         try {
             $details = readJsonInput();
-            if (!array_is_list($details)) {
-                sendJson(['error' => 'La lista di dettagli da inserire nella vendita ha un formato errato'],422);
-            }
-
-            foreach ($details as $detail) {
-                if (!array_key_exists('id_prestation', $detail)) {
-                sendJson(['error' => 'Il campo Prestazione è obbligatorio'], 422);
-                }
-
-                if (!array_key_exists('quantity', $detail)) {
-                    sendJson(['error' => 'Il campo Quantità è obbligatorio'], 422);
-                }
-
-                if (!is_int($detail['id_prestation'])) {
-                    sendJson(['error' => "Impossibile aggiungere la prestazione selezionata. Verifica la selezione e riprova."], 422);
-                }
-
-                if (!is_int($detail['quantity'])) {
-                    sendJson(['error' => "La quantità è stata inserita con un formato errato. Riprova"],422);
-                }
-            }
-
+            $this->validateArray($details);
             $id_sale = $this->salesService->create($details);
-
             sendJson(['message' => "La vendita n. " . $id_sale . " è stata creata con successo."], 201);
         } catch (Throwable $error) {
             $messageError = $error->getMessage();
@@ -100,36 +111,17 @@ class SalesController{
     }
 
     /* Metodo addDetails():
-        1. In ingresso riceviamo l'id della vendita da aggiornare;
+        1. Effettuiamo un try/catch per la gestione degli errori ed eccezioni;
         2. Recuperiamo i dati in ingresso dal client;
-        3. Validiamo i dati controllando che esistano e che siano tipizzati correttamente;
+        3. Avviamo la funzione privata validateArray() per la validazione dell'array in ingresso;
         4. Gestiamo il caso che l'aggiornamento sia andato a buon fine 1;
         4. Gestiamo il caso che la vendita non esista 0; 
         5. Gestiamo eventuali errori nel catch. */
     public function addDetails(int $id_sale){
         try {
             $details = readJsonInput();
-
-            foreach ($details as $detail) {
-                if (!array_key_exists('id_prestation', $detail)) {
-                sendJson(['error' => 'Il campo Prestazione è obbligatorio'], 422);
-                }
-
-                if (!array_key_exists('quantity', $detail)) {
-                    sendJson(['error' => 'Il campo Quantità è obbligatorio'], 422);
-                }
-
-                if (!is_int($detail['id_prestation'])) {
-                    sendJson(['error' => "Impossibile aggiungere la prestazione selezionata. Verifica la selezione e riprova."], 422);
-                }
-
-                if (!is_int($detail['quantity'])) {
-                    sendJson(['error' => "La quantità è stata inserita con un formato errato. Riprova"],422);
-                }
-            }
-
+            $this->validateArray($details);
             $resultUpdate = $this->salesService->addDetails($id_sale, $details);
-
             if ($resultUpdate === 1) {
                 sendJson(['message' => "La vendita n. " . $id_sale . " è stata aggiornata con successo"], 200);
             } elseif ($resultUpdate === 0){

@@ -361,4 +361,21 @@ class SalesRepository {
         return $booleanResult;
     }
 
+    // Creiamo il metodo getTotalTimeSaved() per il calcolo totale del tempo risparmiato dalle vendite delle prestazioni
+    function getTotalTimeSaved():int {
+        /* Query SQL: 
+            1. Utilizziamo SUM per la somma della moltiplicazione tra time_saved_snapshot e quantity,
+                SUM se il valore è 0 da null.
+            2. Utilizziamo COALESCE per trasformare il primo valore in 0 nel caso fosse null; */
+        $query = "SELECT COALESCE(SUM(time_saved_snapshot * quantity), 0) FROM " . SalesRepository::TABLE_SALES_DETAILS;
+
+        // Prepariamo lo statement e eseguiamo lo statement
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        $totalTimeSaved = (int) $stmt->fetchColumn();
+
+        return $totalTimeSaved;
+    }
+
 }
