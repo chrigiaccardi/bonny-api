@@ -65,7 +65,12 @@ class SalesService{
         }
     }
 
-    /* Validiamo le date in ingresso, che siano nel formato giusto e che siano reali. */
+    /* Validiamo le date in ingresso, che siano nel formato giusto e che siano reali:
+        1. Abbiamo la data in formato stringa in ingresso che arriva dall'url;
+        2. Definiamo il pattern che deve avere la data;
+        3. con preg_match confrontiamo il pattern con la data ed estraiamo i valori numerici;
+        4. Se il match tra pattern e data è OK allora salviamo i valori numerici in $day, $month e $year;
+        5. Invece se il match è errato o la data, con checkdate() non esiste mandiamo eccezione.*/
     private function validateDate(string $date){
         $pattern = "#^(\d{4})-(\d{2})-(\d{2})$#";
         $resultDate = preg_match($pattern, $date, $matches);
@@ -76,7 +81,15 @@ class SalesService{
         }
         
         if (!$resultDate || !checkdate($month, $day, $year)) {
-            throw new InvalidArgumentException("La data è stata inserita in un formato errato");
+            throw new InvalidArgumentException("La data è stata inserita in un formato errato o non esiste");
+        }
+    }
+
+    /* Validiamo l'intervallo di date che sia veritiero, se entrambe le date sono esistenti allora la data
+    di fine deve essere maggiore che la data di inizio, altrimenti eccezione. */
+    private function validateDateRange(string $start_date, string $end_date){
+        if ($start_date > $end_date) {
+            throw new InvalidArgumentException("La data di fine impostata è minore rispatto alla data di inizio.");
         }
     }
 
@@ -148,23 +161,28 @@ class SalesService{
     }
 
     /* Validazione metodo getTotalTimeSaved():
-        1. Se id_prestation esiste, validazione dello stesso in ingresso;
+        1. Se id_prestation è diverso da null, validazione dello stesso in ingresso;
         2. Se start_date esiste, validazione dello stesso in ingresso;
         3. Se end_date esiste, validazione dello stesso in ingresso;
-        4. Chiamiamo il metodo getTotalTimeSaved dal salesRepository;
-        5. Ritorniamo il risultato ottenuto. */
+        4. Se entrambe le date esistono, validiamo l'intervallo tra esse;
+        5. Chiamiamo il metodo getTotalTimeSaved dal salesRepository;
+        6. Ritorniamo il risultato ottenuto. */
     public function getTotalTimeSaved(?int $id_prestation, ?string $start_date, ?string $end_date):int {
-        if ($id_prestation) {
+        if ($id_prestation !== null) {
             $this->validateId($id_prestation);
         }
-        if ($start_date) {
+        if ($start_date !== null) {
             $this->validateDate($start_date);
         }
-        if ($end_date) {
+        if ($end_date !== null) {
             $this->validateDate($end_date);
         }
-        
-        
-        
+        if ($start_date !== null && $end_date !== null) {
+            $this->validateDateRange($start_date, $end_date);
+        }
+
+        $totalTimeSaved = $this->salesRepository->getTotalTimeSaved($id_prestation, $start_date, $end_date);
+
+        return $totalTimeSaved;          
     }
 }
