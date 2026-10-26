@@ -26,6 +26,15 @@ class SalesService{
             throw new InvalidArgumentException("L'ID inserito non è valido.");
         }
     }
+    // Validiamo che l'id sia un intero valido
+    private function validateIntID(string $id): int {
+        if (!filter_var($id,FILTER_VALIDATE_INT)) {
+            throw new InvalidArgumentException("L'ID inserito non è valido.");
+        } else{
+            $idInt = intval($id);
+            return $idInt;
+        }
+    }
 
     // Validiamo che l'array non sia vuoto in ingresso
     private function validateDetails(array $details):void {
@@ -167,9 +176,10 @@ class SalesService{
         4. Se entrambe le date esistono, validiamo l'intervallo tra esse;
         5. Chiamiamo il metodo getTotalTimeSaved dal salesRepository;
         6. Ritorniamo il risultato ottenuto. */
-    public function getTotalTimeSaved(?int $id_prestation, ?string $start_date, ?string $end_date):int {
+    public function getTotalTimeSaved(?string $id_prestation, ?string $start_date, ?string $end_date):int {
         if ($id_prestation !== null) {
-            $this->validateId($id_prestation);
+            $id_prestation_int = $this->validateIntID($id_prestation);
+            $this->validateId($id_prestation_int);
         }
         if ($start_date !== null) {
             $this->validateDate($start_date);
@@ -181,7 +191,7 @@ class SalesService{
             $this->validateDateRange($start_date, $end_date);
         }
 
-        $totalTimeSaved = $this->salesRepository->getTotalTimeSaved($id_prestation, $start_date, $end_date);
+        $totalTimeSaved = $this->salesRepository->getTotalTimeSaved($id_prestation_int, $start_date, $end_date);
 
         return $totalTimeSaved;          
     }

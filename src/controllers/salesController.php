@@ -161,35 +161,29 @@ class SalesController{
     /* Metodo getTotalTimeSaved():
         1. Effettuiamo il try/catch per la gestione degli errori;
         2. Facciamo partire il metodo dedicato dal salesService;
-        3. Con sendJson rispondiamo alla richiesta con il n. del tempo totale rispamriato;
-        4. Gestiamo le casistiche in base ai parametri presenti  */
-    public function getTotalTimeSaved(?int $id_prestation, ?string $start_date, ?string $end_date):int {
+        3. Creiamo una catena di if / else if / else con tutte le 8 combinazioni e creiamo il messaggio e
+            gestiamo le casistiche in base ai parametri presenti;
+        4. Con sendJson rispondiamo alla richiesta con il n. del tempo totale rispamriato e il messaggio appropriato al caso. */
+    public function getTotalTimeSaved(?string $id_prestation, ?string $start_date, ?string $end_date):int {
         try {
             $totalTimeSaved = $this->salesService->getTotalTimeSaved($id_prestation, $start_date, $end_date);
 
-            $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti.';
-
-            if ($id_prestation !== null) {
-                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti, per la prestazione n. ' . $id_prestation;
-            }
-            if ($start_date !== null) {
-                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti dal ' . $start_date;
-            }
-            if ($end_date !== null) {
-                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti prima del ' . $end_date;
-            }
-            if ($start_date !== null && $id_prestation !== null) {
-                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti dal ' . $start_date . ' per la prestazione n. ' . $id_prestation;
-            }
-            if ($id_prestation !== null && $end_date !== null) {
-                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti prima del ' . $end_date . ' per la prestazione n. ' . $id_prestation;
-                
-            }
-            if ($start_date !== null && $end_date !== null) {
-                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti dal ' . $start_date . ' al ' . $end_date;
-            }
             if ($start_date !== null && $end_date !== null && $id_prestation !== null) {
                 $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti dal ' . $start_date . ' al ' . $end_date . ' per la prestazione n. ' . $id_prestation;
+            } elseif ($start_date !== null && $id_prestation !== null) {
+                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti dal ' . $start_date . ' per la prestazione n. ' . $id_prestation;
+            } elseif ($id_prestation !== null && $end_date !== null) {
+                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti prima del ' . $end_date . ' per la prestazione n. ' . $id_prestation;   
+            } elseif ($start_date !== null && $end_date !== null) {
+                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti dal ' . $start_date . ' al ' . $end_date;
+            } elseif ($id_prestation !== null) {
+                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti, per la prestazione n. ' . $id_prestation;
+            } elseif ($start_date !== null) {
+                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti dal ' . $start_date;
+            } elseif ($end_date !== null) {
+                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti prima del ' . $end_date;
+            } else {
+                $message = 'Il tempo totale risparmiato è di ' . $totalTimeSaved . ' minuti.';
             }
 
             sendJson(['message' => $message]);

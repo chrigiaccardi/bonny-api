@@ -13,6 +13,13 @@ if($method === 'GET' && $path === '/sales'){
     $salesController->getAll();
 }
 
+if ($method === 'GET' && $path === '/total-time-saved') {
+    $id_prestation = $_GET['id_prestation'] ?? null;
+    $start_date = $_GET['start_date'] ?? null;
+    $end_date = $_GET['end_date'] ?? null;
+    $salesController->getTotalTimeSaved($id_prestation, $start_date, $end_date);
+}
+
 /* Per quanto riguarda le routes di con valori dinamici, ci sono più passaggi da fare:
     Tramite regex recuperiamo l'id_prestation da poterlo utilizzare nel metodo update()
     1. Creiamo il pattern dove (\d+) estrae l'il numero presente;
@@ -42,6 +49,7 @@ if ($method === 'POST' && (preg_match($pattern2, $path, $matches) === 1)){
     $id_sale = intval($matches[1]);
     $salesController->addDetails($id_sale);
 }
+
 if ($method === 'DELETE' && (preg_match($pattern3, $path, $matches) === 1)){
     $id_sale = intval($matches[1]);
     $id_detail = intval($matches[2]);
