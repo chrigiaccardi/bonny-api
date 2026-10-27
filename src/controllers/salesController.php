@@ -31,7 +31,7 @@ class SalesController{
             2.3. Controlliamo che i campi siano di tipizzazione corretta; */
     private function validateArray(array $details){
         if (!array_is_list($details)) {
-                sendJson(['error' => 'La lista di dettagli da inserire nella vendita ha un formato errato'],422);
+                sendJson(['error' => 'La lista di dettagli da inserire nella vendita ha un formato errato'], 422);
             }
 
             foreach ($details as $detail) {
@@ -51,7 +51,7 @@ class SalesController{
                 }
 
                 if (!is_int($detail['quantity'])) {
-                    sendJson(['error' => "La quantità è stata inserita con un formato errato. Riprova"],422);
+                    sendJson(['error' => "La quantità è stata inserita con un formato errato. Riprova"], 422);
                 }
             }
     }
@@ -87,7 +87,7 @@ class SalesController{
             sendJson(['message' => "La vendita n. " . $id_sale . " è stata creata con successo."], 201);
         } catch (Throwable $error) {
             $messageError = $error->getMessage();
-            sendJson(['error' => $messageError], 422);
+            sendJson(['error' => $messageError], $error->getCode());
         }
     }
 
@@ -102,11 +102,11 @@ class SalesController{
             if ($deletedRow === 1) {
                 sendJson(['message' => "La vendita n. " . $id_sale . " è stata eliminata con successo."], 200);
             } elseif ($deletedRow === 0){
-                sendJson(['erroe' => "Errore nella cancellazione della vendita n. " . $id_sale . ", la vendita non esiste."], 422);
+                sendJson(['errore' => "Errore nella cancellazione della vendita n. " . $id_sale . ", la vendita non esiste."], 422);
             }
         } catch (Throwable $error) {
             $messageError = $error->getMessage();
-            sendJson(['error' => $messageError], 422);
+            sendJson(['error' => $messageError], $error->getCode());
         }
     }
 
@@ -129,7 +129,7 @@ class SalesController{
             }
         } catch (Throwable $error) {
             $messageError = $error->getMessage();
-            sendJson(['error' => $messageError], 422);
+            sendJson(['error' => $messageError], $error->getCode());
         }
     }
 
@@ -154,7 +154,7 @@ class SalesController{
             }
         } catch (Throwable $error) {
             $messageError = $error->getMessage();
-            sendJson(['error' => $messageError], 422);
+            sendJson(['error' => $messageError], $error->getCode());
         }
     }
 
@@ -163,7 +163,9 @@ class SalesController{
         2. Facciamo partire il metodo dedicato dal salesService;
         3. Creiamo una catena di if / else if / else con tutte le 8 combinazioni e creiamo il messaggio e
             gestiamo le casistiche in base ai parametri presenti;
-        4. Con sendJson rispondiamo alla richiesta con il n. del tempo totale rispamriato e il messaggio appropriato al caso. */
+        4. Con sendJson rispondiamo alla richiesta con il n. del tempo totale rispamriato e il messaggio appropriato al caso;
+        5. Nel catch estraiamo il messaggio di errore e lo mandiamo come risposta, con getCode() recuperiamo lo 
+            statusCode da ogni eccezione. */
     public function getTotalTimeSaved(?string $id_prestation, ?string $start_date, ?string $end_date) {
         try {
             $totalTimeSaved = $this->salesService->getTotalTimeSaved($id_prestation, $start_date, $end_date);
@@ -189,7 +191,7 @@ class SalesController{
             sendJson(['message' => $message]);
         } catch (Throwable $error) {
             $messageError = $error->getMessage();
-            sendJson(['error' => $messageError], 422);
+            sendJson(['error' => $messageError], $error->getCode());
         }
     }
 }

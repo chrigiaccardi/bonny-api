@@ -123,7 +123,7 @@ class SalesRepository {
                 InvalidArgumentException fa saltare direttamente al catch senza eseguire più nulla,
                 Così facendo si attiva il rollBack visto che la transaction è ancora attiva e la disattiva. */
                 if ($time_saved_snapshot === false) {
-                    throw new InvalidArgumentException("La prestazione " . $id_prestation . " non esiste");
+                    throw new InvalidArgumentException("La prestazione " . $id_prestation . " non esiste", 404);
                 }
                 
                 // Con bindValue() andiamo a collegare i placeholder con i valori in ingresso della funzione.
@@ -171,7 +171,7 @@ class SalesRepository {
         return $deletedRow;
     }
 
-    /* Metodo updateDetails(): aggiunge 1 o + dettagli ad una vendita esistente 
+    /* Metodo addDetails(): aggiunge 1 o + dettagli ad una vendita esistente 
     La logica sarà simile a quella del metodo create():
         1. Verificare che la vendita esista.
         2. Avviare una transazione.
@@ -221,7 +221,7 @@ class SalesRepository {
                     InvalidArgumentException fa saltare direttamente al catch senza eseguire più nulla,
                     Così facendo si attiva il rollBack visto che la transaction è ancora attiva e la disattiva. */
                     if ($time_saved_snapshot === false) {
-                        throw new InvalidArgumentException("La prestazione " . $id_prestation . " non esiste");
+                        throw new InvalidArgumentException("La prestazione " . $id_prestation . " non esiste", 404);
                     }
                     
                     // Con bindValue() andiamo a collegare i placeholder con i valori in ingresso della funzione.
@@ -267,16 +267,16 @@ class SalesRepository {
             return false;
         } else {
             // 2. dobbiamo controllare che il dettaglio sia effettivamente presente nella vendita
-        $queryDetailSale = "SELECT id FROM " . SalesRepository::TABLE_SALES_DETAILS . " WHERE id_sale = :id_sale AND id = :id_detail";
+            $queryDetailSale = "SELECT id FROM " . SalesRepository::TABLE_SALES_DETAILS . " WHERE id_sale = :id_sale AND id = :id_detail";
 
-        //Prepariamo lo statement, eseguiamo il bindValue e eseguiamo la query
-        $stmtDetailSale = $this->pdo->prepare($queryDetailSale);
-        $stmtDetailSale->bindValue(':id_sale', $id_sale, PDO::PARAM_INT);
-        $stmtDetailSale->bindValue(':id_detail', $id_detail, PDO::PARAM_INT);
-        $stmtDetailSale->execute();
+            //Prepariamo lo statement, eseguiamo il bindValue e eseguiamo la query
+            $stmtDetailSale = $this->pdo->prepare($queryDetailSale);
+            $stmtDetailSale->bindValue(':id_sale', $id_sale, PDO::PARAM_INT);
+            $stmtDetailSale->bindValue(':id_detail', $id_detail, PDO::PARAM_INT);
+            $stmtDetailSale->execute();
 
-        // Troviamo il record o no in base alla presenta del dettaglio in quella precisa vendita
-        $checkDetailSale = $stmtDetailSale->fetch();
+            // Troviamo il record o no in base alla presenta del dettaglio in quella precisa vendita
+            $checkDetailSale = $stmtDetailSale->fetch();
         }
         
         // Se il dettaglio non esiste nella vendita selezionata allora ritorniamo subito

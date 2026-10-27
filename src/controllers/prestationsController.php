@@ -72,8 +72,8 @@ class PrestationsController {
             // Estraiamo il messaggio di errore
             $messageError = $error->getMessage();
 
-            // Inseriamo il messaggio di errore nel json con il codestatus 422
-            sendJson(['error' => $messageError], 422);
+            // Inseriamo il messaggio di errore nel json con getCode() per recuperare lo statusCode
+            sendJson(['error' => $messageError], $error->getCode());
         }
     }
 
@@ -129,8 +129,8 @@ class PrestationsController {
             // Estraiamo il messaggio di errore
             $messageError = $error->getMessage();
 
-            // Inseriamo il messaggio di errore nel json con il codestatus 422
-            sendJson(['error' => $messageError], 422);
+            // Inseriamo il messaggio di errore nel json con getCode() che restituisce lo statusCode di ogni eccezione.
+            sendJson(['error' => $messageError], $error->getCode());
         }
     }
 
@@ -156,8 +156,8 @@ class PrestationsController {
             // Estraiamo il messaggio di errore
             $messageError = $error->getMessage();
 
-            // Inseriamo il messaggio di errore nel json con il codestatus 422
-            sendJson(['error' => $messageError], 422);
+            // Inseriamo il messaggio di errore nel json con getCode() che restituisce lo statusCode di ogni eccezione.
+            sendJson(['error' => $messageError], $error->getCode());
         }
     }
 
@@ -183,8 +183,8 @@ class PrestationsController {
             // Estraiamo il messaggio di errore
             $messageError = $error->getMessage();
 
-            // Inseriamo il messaggio di errore nel json con il codestatus 422
-            sendJson(['error' => $messageError], 422);
+            // Inseriamo il messaggio di errore nel json con getCode() che restituisce lo statusCode di ogni eccezione.
+            sendJson(['error' => $messageError], $error->getCode());
         }
     }
 }

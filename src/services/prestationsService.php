@@ -27,12 +27,12 @@ class PrestationsService{
 
         // Effettuiamo una verifica, se il campo è vuoto da errore
         if(mb_strlen($nameData) === 0){
-            throw new InvalidArgumentException("Il campo 'Name' è obbligatorio");
+            throw new InvalidArgumentException("Il campo 'Name' è obbligatorio", 422);
         }
 
         // Effettuiamo una verifica che $name sia sotto i 50 caratteri
         if(mb_strlen($nameData) > 50){
-            throw new InvalidArgumentException("Il campo 'Name' non può superare 50 caratteri.");
+            throw new InvalidArgumentException("Il campo 'Name' non può superare 50 caratteri.", 422);
         }
 
         // Ritorniamo il name validato
@@ -41,13 +41,13 @@ class PrestationsService{
 
     private function validateTimeSaved(int $time_saved):void {
         if ($time_saved < 0) {
-            throw new InvalidArgumentException('Il Tempo risparmiato non può essere inferiore di 0.');
+            throw new InvalidArgumentException('Il Tempo risparmiato non può essere inferiore di 0.', 422);
         }
     }
 
     private function validateId(int $id):void {
         if ($id < 1) {
-            throw new InvalidArgumentException("L'ID inserito non è valido.");
+            throw new InvalidArgumentException("L'ID inserito non è valido.", 422);
         }
     }
 
