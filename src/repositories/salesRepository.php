@@ -411,4 +411,19 @@ class SalesRepository {
         return $totalTimeSaved;
     }
 
+    // Creiamo il metodo existsByIdPrestation() per verificare tramite query che l'id_prestation esista nella tabella;
+    function existsByIdPrestation(int $id_prestation): bool {
+        // Creiamo la query che cerca il record giusto tramite l'id
+        $query = "SELECT EXISTS (SELECT 1 FROM " . SalesRepository::TABLE_PRESTATIONS . " WHERE id = :id)";
+
+        // Prepariamo lo statement, effettuaimo il bindValue e eseguiamo lo statement
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindValue(':id', $id_prestation, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // fetchColumn() restituisce 1/0 in base alla presenza, con (bool) lo trasformiamo in true/false
+        $booleanResult = (bool) $stmt->fetchColumn();
+        return $booleanResult;
+    }
+
 }

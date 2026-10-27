@@ -28,7 +28,7 @@ class SalesService{
     }
     // Validiamo che l'id sia un intero valido
     private function validateIntID(string $id): int {
-        if (!filter_var($id,FILTER_VALIDATE_INT)) {
+        if (filter_var($id,FILTER_VALIDATE_INT) === false) {
             throw new InvalidArgumentException("L'ID inserito non è valido.");
         } else{
             $idInt = intval($id);
@@ -170,16 +170,20 @@ class SalesService{
     }
 
     /* Validazione metodo getTotalTimeSaved():
-        1. Se id_prestation è diverso da null, validazione dello stesso in ingresso;
-        2. Se start_date esiste, validazione dello stesso in ingresso;
-        3. Se end_date esiste, validazione dello stesso in ingresso;
-        4. Se entrambe le date esistono, validiamo l'intervallo tra esse;
-        5. Chiamiamo il metodo getTotalTimeSaved dal salesRepository;
-        6. Ritorniamo il risultato ottenuto. */
+        1. Creiamo la variabile $id_prestation_int = null visto che potrebbe non esistere se id_prestation non c'è;
+        2. Se id_prestation è diverso da null, validazione e trasformazione in intero dello stesso in ingresso;
+        3. Se start_date esiste, validazione dello stesso in ingresso;
+        4. Se end_date esiste, validazione dello stesso in ingresso;
+        5. Se entrambe le date esistono, validiamo l'intervallo tra esse;
+        6. Chiamiamo il metodo getTotalTimeSaved dal salesRepository;
+        7. Ritorniamo il risultato ottenuto. */
     public function getTotalTimeSaved(?string $id_prestation, ?string $start_date, ?string $end_date):int {
+        $id_prestation_int = null;
         if ($id_prestation !== null) {
-            $id_prestation_int = $this->validateIntID($id_prestation);
-            $this->validateId($id_prestation_int);
+            $this->validateIntID($id_prestation);
+            if ($this->salesRepository->existsByIdPrestation($id_prestation)) {
+                $this->validateId($id_prestation);
+            }
         }
         if ($start_date !== null) {
             $this->validateDate($start_date);

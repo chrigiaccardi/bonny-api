@@ -29,7 +29,7 @@ class SalesController{
             2.1. Controlliamo che il singolo dettaglio sia un array;
             2.2. Controlliamo che i campi esistano;
             2.3. Controlliamo che i campi siano di tipizzazione corretta; */
-    private function validateArray($details){
+    private function validateArray(array $details){
         if (!array_is_list($details)) {
                 sendJson(['error' => 'La lista di dettagli da inserire nella vendita ha un formato errato'],422);
             }
@@ -164,7 +164,7 @@ class SalesController{
         3. Creiamo una catena di if / else if / else con tutte le 8 combinazioni e creiamo il messaggio e
             gestiamo le casistiche in base ai parametri presenti;
         4. Con sendJson rispondiamo alla richiesta con il n. del tempo totale rispamriato e il messaggio appropriato al caso. */
-    public function getTotalTimeSaved(?string $id_prestation, ?string $start_date, ?string $end_date):int {
+    public function getTotalTimeSaved(?string $id_prestation, ?string $start_date, ?string $end_date) {
         try {
             $totalTimeSaved = $this->salesService->getTotalTimeSaved($id_prestation, $start_date, $end_date);
 
