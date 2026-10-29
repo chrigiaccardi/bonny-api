@@ -9,10 +9,12 @@ namespace Bonny\routes;
 /** @var string $path */
 
 // Creiamo in condizionali per il richiamo dei vari metodi del salesController
+// Metodo getAll():
 if($method === 'GET' && $path === '/sales'){
     $salesController->getAll();
 }
 
+// Metodo getTotalTimeSaved():
 if ($method === 'GET' && $path === '/total-time-saved') {
     $id_prestation = $_GET['id_prestation'] ?? null;
     $start_date = $_GET['start_date'] ?? null;
@@ -31,25 +33,29 @@ $pattern1 = "#^/sales/(\d+)$#";
 $pattern2 = "#^/sales/(\d+)/details$#";
 $pattern3 = "#^/sales/(\d+)/details/(\d+)$#";
 
+// Metodo getByID():
 if($method === 'GET' && (preg_match($pattern1, $path, $matches) === 1)){
     $id_sale = intval($matches[1]);
     $salesController->getById($id_sale);
 }
 
+// MEtodo create():
 if ($method === 'POST' && $path === "/sales") {
     $salesController->create();
 }
-
+// Metodo delete():
 if ($method === 'DELETE' && (preg_match($pattern1, $path, $matches) === 1)){
     $id_sale = intval($matches[1]);
     $salesController->delete($id_sale);
 }
 
+// Metodo addDetails():
 if ($method === 'POST' && (preg_match($pattern2, $path, $matches) === 1)){
     $id_sale = intval($matches[1]);
     $salesController->addDetails($id_sale);
 }
 
+// Metodo deleteDetail():
 if ($method === 'DELETE' && (preg_match($pattern3, $path, $matches) === 1)){
     $id_sale = intval($matches[1]);
     $id_detail = intval($matches[2]);

@@ -21,41 +21,48 @@ class PrestationsService{
     }
 
     //Creiamo i metodi di validazione al di fuori deli metodi così da porterli riutilizzare
+
+    /* Metodo privato validateName(), per validare che il nome della prestazione sia presente e sotto i 50 caratteri:
+        1. Puliamo la stringa in ingresso dagli spazi ant e post con trim();
+        2. Se il campo è vuoto, mb_strlen restituisce il numero di caratteri presenti, allora creiamo un eccezione;
+        3. Se il campo ha più di 50 caratteri, mb_strlen restituisce il numero di caratteri presenti, allora creiamo un eccezione;
+        4. Ritorniamo il valore salvato all'inizio visto che ha passato le validazioni.   */
     private function validateName(string $name):string {
-        // trim() elimina spazi all'inizio e alla fine
         $nameData = trim($name);
 
-        // Effettuiamo una verifica, se il campo è vuoto da errore
         if(mb_strlen($nameData) === 0){
             throw new InvalidArgumentException("Il campo 'Name' è obbligatorio", 422);
         }
 
-        // Effettuiamo una verifica che $name sia sotto i 50 caratteri
         if(mb_strlen($nameData) > 50){
             throw new InvalidArgumentException("Il campo 'Name' non può superare 50 caratteri.", 422);
         }
 
-        // Ritorniamo il name validato
         return $nameData;
     }
 
+    /* Metodo privato validateTimeSAved(), valida che il tempo rispamriato non sia inferiore a 0.
+        Lo 0 lo valutiamo come valore valido (niente risparmio);
+        1. Se il tempo in ingresso è minore di 0 allora mandiamo eccezione. */
     private function validateTimeSaved(int $time_saved):void {
         if ($time_saved < 0) {
             throw new InvalidArgumentException('Il Tempo risparmiato non può essere inferiore di 0.', 422);
         }
     }
 
+    /* Metodo privato validateId(), valida che l'id inserito non sia inferiore a 1.
+        1. Se l'ID in ingresso è minore di 1 allora mandiamo eccezione. */
     private function validateId(int $id):void {
         if ($id < 1) {
             throw new InvalidArgumentException("L'ID inserito non è valido.", 422);
         }
     }
 
-    //Validazione Metodo getAllActive():array
+    /* Metodo getAllActive():array, non ha validazione visto che non ci sono dati in ingresso:
+        1. Chiamiamo il metodo dal repository e salviamo il risultato;
+        2. Ritorniamo il risultato. */
     public function getAllActive():array {
-        // Chiamiamo PrestationRepository e il suo metodo getAllActive()
         $prestationsActive = $this->prestationsRepository->getAllActive();
-        // Ritorniamo l'array che arriva dal metodo getAllActive()
         return $prestationsActive;
     }
 

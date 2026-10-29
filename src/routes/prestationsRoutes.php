@@ -9,10 +9,12 @@ namespace Bonny\routes;
 /** @var string $path */
 
 /*Andiamo ad effettuare la verifica della condizione per eseguire il giusto metodo */
+// Metodo getAllActive:
 if ($method === 'GET' && $path === '/prestations') {
     $prestationsController->getAllActive();
 }
 
+// Metodo create():
 if ($method === 'POST' && $path === '/prestations') {
     $prestationsController->create();
 }
@@ -26,18 +28,21 @@ if ($method === 'POST' && $path === '/prestations') {
     
 $pattern = "#^/prestations/(\d+)$#";
 
+// Metodo update():
 if ($method === 'PUT' && (preg_match($pattern, $path, $matches) === 1)) {
     $id_prestation = intval($matches[1]);
     // Recuperato l'id_prestation lo inseriamo nel metodo update()
     $prestationsController->update($id_prestation);
 }
 
+// Metodo deactivate():
 if($method === 'DELETE' && (preg_match($pattern, $path, $matches) === 1)) {
     $id_prestation = intval($matches[1]);
     // Recuperato l'id_prestation lo inseriamo nel metodo update()
     $prestationsController->deactivate($id_prestation);
 }
 
+// Metodo activate():
 if ($method === 'PATCH' && (preg_match($pattern, $path, $matches) === 1)) {
     $id_prestation = intval($matches[1]);
     $prestationsController->activate($id_prestation);
