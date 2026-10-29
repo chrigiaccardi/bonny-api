@@ -102,7 +102,7 @@ class SalesController{
             if ($deletedRow === 1) {
                 sendJson(['message' => "La vendita n. " . $id_sale . " è stata eliminata con successo."], 200);
             } elseif ($deletedRow === 0){
-                sendJson(['errore' => "Errore nella cancellazione della vendita n. " . $id_sale . ", la vendita non esiste."], 422);
+                sendJson(['error' => "Errore nella cancellazione della vendita n. " . $id_sale . ", la vendita non esiste."], 422);
             }
         } catch (Throwable $error) {
             $messageError = $error->getMessage();
@@ -125,7 +125,7 @@ class SalesController{
             if ($resultUpdate === 1) {
                 sendJson(['message' => "La vendita n. " . $id_sale . " è stata aggiornata con successo"], 200);
             } elseif ($resultUpdate === 0){
-                sendJson(['erroe' => "Errore nell'aggiornamento della vendita n. " . $id_sale . "."], 422);
+                sendJson(['error' => "Errore nell'aggiornamento della vendita n. " . $id_sale . "."], 422);
             }
         } catch (Throwable $error) {
             $messageError = $error->getMessage();

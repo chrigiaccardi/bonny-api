@@ -22,21 +22,19 @@ class Connection
         $this->db = $db;
     }
 
-    // Creiamo la funzione di connessione getConnection
+    /* Creiamo la funzione di connessione getConnection:
+        1. Il dsn (Data Source Name) è una stringa che contiene le informazioni per connettere l'app ad un DB; 
+        2. Creiamo la connessione PDO inserendo il dsn, l'user e la password del DB, Aggiungiamo due opzioni:
+            per gli errori trasformarle in eccezzioni così che possano propagarsi verso l'alto;
+            che i dati restutiuti da PDO siano restituiti in formato Array Associativo.
+        3. Ritorniamo $pdo come promesso all'inizio con ():PDO. */
     function getConnection(): PDO
     {
-        // Il dsn (Data Source Name) è una stringa che contiene le informazioni per connettere l'app ad un DB
         $dsn = 'mysql:host=' . $this->db['database']['host'] . ';port=' . $this->db['database']['port'] . ';dbname=' . $this->db['database']['name'] . ';charset=utf8mb4';
-
-        /* Creiamo la connessione PDO inserendo il dsn, l'user e la password del DB.
-        Aggiungiamo due opzioni, per gli errori trasformarle in eccezzioni così che possano propagarsi verso l'alto,
-        e che i dati restutiuti da PDO siano restituiti in formato Array Associativo */
         $pdo = new PDO($dsn, $this->db['database']['user'], $this->db['database']['password'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
-
-        // Ritornismo $pdo come promesso all'inizio ():PDO
         return $pdo;
     }
 }
