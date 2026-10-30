@@ -22,17 +22,20 @@ class SalesService
         $this->salesRepository = $salesRepository;
     }
 
-    // Creiamo i metodi di validazione da utilizzare poi nei metodi
-    // Validiamo che l'id sia positivo 
-    private function validateId(int $id): void
-    {
+    /* Metodo privato validateId(), valida che l'id inserito non sia inferiore a 1.
+        1. Se l'ID in ingresso è minore di 1 allora mandiamo eccezione. */
+    private function validateId(int $id): void {
         if ($id < 1) {
             throw new InvalidArgumentException("L'ID inserito non è valido.", 422);
         }
     }
-    // Validiamo che l'id sia un intero valido
-    private function validateIntID(string $id): int
-    {
+    /* Metodo validateIntId(), Validiamo che l'id sia un intero valido:
+        1. In ingresso abbiamo un ID in formato stringa;
+        2. Verifichiamo con filter_var(ID, FILTER_VALIDATE_INT) che il valore contenuto in ID sia un intero valido;
+        3. Se la verifica è false allora mandiamo un eccezione;
+        4. Se true e passa allora trasformiamo la stringa in intero con intval();
+        5. Ritorniamo il numero intero. */
+    private function validateIntID(string $id): int {
         if (filter_var($id, FILTER_VALIDATE_INT) === false) {
             throw new InvalidArgumentException("L'ID inserito non è valido.", 422);
         } else {
@@ -41,40 +44,42 @@ class SalesService
         }
     }
 
-    // Validiamo che l'array non sia vuoto in ingresso
-    private function validateDetails(array $details): void
-    {
+    /* Metodo validateDetails(), Validiamo che l'array, in ingresso, non sia vuoto:
+        1. Se l'array $details è vuoto allora mandiamo eccezione. */
+    private function validateDetails(array $details): void {
         if ($details === []) {
             throw new InvalidArgumentException("l'elenco dei dettagli della vendita è vuoto.", 404);
         }
     }
+
     /* Validiamo i singoli elementi dell'array: I valori dell'elemento devono essere validi (id intero positivo e quantità >= 1)
-    e controlliamo che non ci siano duplicazioni di dettagli. */
-    private function validateElementsDetails(array $details): void
-    {
-        // Inizializziamo un array vuoto degli id_prestation presente in ogni dettaglio
+        e controlliamo che non ci siano duplicazioni di dettagli:
+        1. Inizializziamo un array vuoto degli id_prestation presente in ogni dettaglio;
+        2. Utilizziamo ill foreach per esaminare ogni dettaglio nell'array dettagli;
+            2.1. Estraiamo il valore dell'id_prestation;
+            2.2. Mandiamo un'eccezione se l'id non è un intero o se è minore di 1;
+            2.3. Mandiamo un'eccezione se la quantità non è un intero o se è minore di 1;
+            2.4. Verifichiamo che non ci siano presenti duplicati di prestazioni nel singolo dettaglio, in_array verifica che
+                il valore sia presente nell'array specificato e true specifica di verificare anche la tipizzazione;
+                Se ci sono già prestazioni con lo stesso ID allora mandiamo eccezione;
+            2.5 Altrimenti inseriamo l'id dentro l'array $prestationsIds. */
+    private function validateElementsDetails(array $details): void {
         $prestationsIds = [];
 
         foreach ($details as $detail) {
-            // Estraiamo il valore dal dettaglio
             $id_prestation = $detail['id_prestation'];
 
-            // Mandiamo un'eccezione se l'id non è un intero o se è minore di 1
             if (!is_int($id_prestation) || $id_prestation < 1) {
                 throw new InvalidArgumentException("L'ID non e' valido, inserire valore maggiore o uguale a 1.", 422);
             }
 
-            // Mandiamo un'eccezione se la quantità non è un intero o se è minore di 1
             if (!is_int($detail['quantity']) || $detail['quantity'] < 1) {
                 throw new InvalidArgumentException("La quantità inserita deve essere maggiore o uguale a 1.", 422);
             }
 
-            // Verifichiamo che non ci siano presenti duplicati di prestazioni nel singolo dettaglio
-            // in_array verifica che il valore sia presente nell'array specificato e con true la tipizzazione
             if (in_array($id_prestation, $prestationsIds, true)) {
                 throw new InvalidArgumentException("DUPLICAZIONE: La prestazione ID " . $id_prestation . " è già stata inserita.", 422);
             } else {
-                // Inseriamo l'id nell'array così che al prossimo giro sia presente
                 $prestationsIds[] = $id_prestation;
             }
         }
@@ -101,8 +106,8 @@ class SalesService
         }
     }
 
-    /* Validiamo l'intervallo di date che sia veritiero, se entrambe le date sono esistenti allora la data
-    di fine deve essere maggiore che la data di inizio, altrimenti eccezione. */
+    /* Metodo validateDateRange(), Validiamo l'intervallo di date che sia veritiero:
+        1. Se la data di inizio e maggiore di quella di fine allora mandiamo una eccezione. (Essendo stringa si possono fare le comparazione con l'operatore matematico.) */
     private function validateDateRange(string $start_date, string $end_date)
     {
         if ($start_date > $end_date) {

@@ -66,58 +66,65 @@ class PrestationsService{
         return $prestationsActive;
     }
 
-    // Validazione Metodo create(string $name, int $time_saved):int
+    /* Validazione Metodo create():int, valida il nome e il tempo risparmiato in ingresso:
+        1. Validiamo il nome in ingresso e salva il valore;
+        2. Validiamo il tempo risparmiato in ingresso;
+        3. Chiamiamo il metodo dal repository e salviamo il valore ID di ritorno;
+        4. Ritorniamo l'id della vendita appena creata. */
     public function create(string $name, int $time_saved):int {
-        // Chiamiamo le due funzioni di validazione
         $nameData = $this->validateName($name);
         $this->validateTimeSaved($time_saved);
 
-        //Chiamiamo PrestationRepository e il suo metodo create
         $id_prestation = $this->prestationsRepository->create($nameData, $time_saved);
-
-        // Ritorniamo l'id_prestation che arriva dal metodo create del Repository
         return $id_prestation;
     }
 
-    // Validazione metodo update(int $id_prestation, string $name, int $time_saved)
+    /* Validazione metodo update():int|false, validiamo i 3 parametri in ingresso e ritorniamo l'aggiornamento effettuato:
+        1. Validiamo l'id che arriva in ingresso;
+        2. Validiamo il nome in ingresso e salva il valore;
+        3. Validiamo il tempo risparmiato in ingresso;
+        4. Verifichiamo che l'id_prestation esista:
+            4.1. Se esiste allora chiamiamo il metodo dal repository;
+            4.2. Ritorniamo il valore;
+        5. Se l'id non esiste ritorniamo false. */
     public function update(int $id_prestation, string $name, int $time_saved):int|false {
-        // Validiamo i parametri in ingresso
         $this->validateId($id_prestation);
         $nameData = $this->validateName($name);
         $this->validateTimeSaved($time_saved);
 
-        // Verifichiamo l'esistenza dell'id_prestation in ingresso
         if ($this->prestationsRepository->existsById($id_prestation)) {
-            // Eseguiamo il metodo update() del repository e ritorniamo il numero di record aggiornati
             $row = $this->prestationsRepository->update($id_prestation, $nameData, $time_saved);
             return $row;
         }
         return false;
     }
 
-    // Validazione metodo deactivate(int $id_prestation)
+    /* Validazione metodo deactivate():int|false, Validiamo l'id in ingresso e se esista chiamiamo il metodo:
+            1. Validiamo il parametro ID in ingresso;
+            2. Se l'ID selezionato esiste:
+                2.1. Eseguiamo la chiamata del metodo dal repository passando ID;
+                2.2 Ritorniamo il valore;
+            3. Se l'ID selezionato non esiste ritorniamo false. */
     public function deactivate(int $id_prestation):int|false {
-        // Validazione del parametro ID
         $this->validateId($id_prestation);
 
-        // Verifichiamo l'esistenza dell'id_prestation in ingresso
         if ($this->prestationsRepository->existsById($id_prestation)) {
-            // Eseguiamo il metodo update() del repository e ritorniamo il numero di record aggiornati
             $row = $this->prestationsRepository->deactivate($id_prestation);
             return $row;
         }
         return false;
     }
 
-    // Validazione metodo activate(int $id_prestation)
-    public function activate(int $id_prestation): int|false
-    {
-        // Validazione del parametro ID
+    /* Validazione metodo activate(), :int|false, Validiamo l'id in ingresso e se esista chiamiamo il metodo:
+            1. Validiamo il parametro ID in ingresso;
+            2. Se l'ID selezionato esiste:
+                2.1. Eseguiamo la chiamata del metodo dal repository passando ID;
+                2.2 Ritorniamo il valore;
+            3. Se l'ID selezionato non esiste ritorniamo false. */
+    public function activate(int $id_prestation): int|false {
         $this->validateId($id_prestation);
 
-        // Verifichiamo l'esistenza dell'id_prestation in ingresso
         if ($this->prestationsRepository->existsById($id_prestation)) {
-            // Eseguiamo il metodo update() del repository e ritorniamo il numero di record aggiornati
             $row = $this->prestationsRepository->activate($id_prestation);
             return $row;
         }
