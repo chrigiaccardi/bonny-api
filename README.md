@@ -46,7 +46,7 @@ L'applicazione permette di:
 git clone <url-del-repository>
 
 # Entra nella Directory del progetto
-cd app-bonny-api
+cd bonny-api
 ```
 
 ### 2. Installare le dipendenze:
