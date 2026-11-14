@@ -13,13 +13,9 @@ use Bonny\services\SalesService;
 use Throwable;
 
 class SalesController{
-    // Dichiariamo la proprieta $salesService per poterla avere all'interno di questo file
-    private SalesService $salesService;
-
-    // Utilizziamo il costruttore per poter salvare e utilizzare la classe SalesService
-    public function __construct(SalesService $salesService){
-        $this->salesService = $salesService;
-    }
+    /* Utilizziamo il constructor property promotion per abbreviare il codice e automaticamente
+    creare la variabile con l'oggetto associato*/
+    public function __construct(readonly SalesService $salesService) {}
 
     // Creazione di funzioni private per riutilizzarle dentro i metodo (DRY):
 

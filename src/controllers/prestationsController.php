@@ -13,14 +13,9 @@ use Bonny\services\PrestationsService;
 use InvalidArgumentException;
 
 class PrestationsController {
-    // Dichiariamo una proprietà $prestationsService affinchè ogni PrestationsService abbia la sua proprietà privata.
-    private PrestationsService $prestationsService;
-
-    /* Con il costruttore dichiariamo che l'oggetto di tipo PrestationsService
-     in ingresso sia inserito nella proprietà privata dell'oggetto $PrestationsService. */
-    public function __construct(PrestationsService $prestationsService) {
-        $this->prestationsService = $prestationsService;
-    }
+    /* Utilizziamo il constructor property promotion per abbreviare il codice e automaticamente
+    creare la variabile con l'oggetto associato*/
+    public function __construct(readonly PrestationsService $prestationsService) {}
 
 
     /* Metodo getAllActive():

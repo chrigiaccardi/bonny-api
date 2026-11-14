@@ -8,17 +8,12 @@ use PDO;
 
 // Creiamo la classe PrestationRepository
 class PrestationsRepository {
-    // Dichiariamo una proprietà $pdo affinchè ogni PrestationsRepository abbia la sua proprietà privata $pdo
-    private PDO $pdo;
-
     // Creiamo una costante per il nome della tabella così da riutilizzarlo nelle varie funzioni
     private const TABLE_NAME = "prestations";
 
-    /* Con il costruttore dichiariamo che l'oggetto di tipo PDO
-     in ingresso sia inserito nella proprietà privata dell'oggetto $PDO */
-    public function __construct(PDO $pdo) {
-        $this->pdo = $pdo;
-    }
+    /* Utilizziamo il constructor property promotion per abbreviare il codice e automaticamente
+    creare la variabile con l'oggetto associato*/
+    public function __construct(readonly PDO $pdo) {}
 
     /* Metodo getAllActive() restituisce tutte le tipologie attive in questo momento: 
         1. Creiamo la query che recupera le prestazioni attive;

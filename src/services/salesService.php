@@ -12,15 +12,9 @@ use InvalidArgumentException;
 
 class SalesService
 {
-    // Dichiariamo una proprietà $salesRepository affinchè ogni salesService abbia la sua proprietà privata
-    private SalesRepository $salesRepository;
-
-    /* Con il costruttore dichiariamo che l'oggetto di tipo PrestationsRepository
-     in ingresso sia inserito nella proprietà privata dell'oggetto $PrestationsRepository */
-    public function __construct(SalesRepository $salesRepository)
-    {
-        $this->salesRepository = $salesRepository;
-    }
+    /* Utilizziamo il constructor property promotion per abbreviare il codice e automaticamente
+    creare la variabile con l'oggetto associato*/
+    public function __construct(readonly SalesRepository $salesRepository) {}
 
     /* Metodo privato validateId(), valida che l'id inserito non sia inferiore a 1.
         1. Se l'ID in ingresso è minore di 1 allora mandiamo eccezione. */

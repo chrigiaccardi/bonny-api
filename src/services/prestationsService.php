@@ -11,14 +11,9 @@ use Bonny\repositories\PrestationsRepository;
 use InvalidArgumentException;
 
 class PrestationsService{
-    // Dichiariamo una proprietà $prestationsRepository affinchè ogni PrestationsService abbia la sua proprietà privata
-    private PrestationsRepository $prestationsRepository;
-
-    /* Con il costruttore dichiariamo che l'oggetto di tipo PrestationsRepository
-     in ingresso sia inserito nella proprietà privata dell'oggetto $PrestationsRepository */
-    public function __construct(PrestationsRepository $prestationsRepository) {
-        $this->prestationsRepository = $prestationsRepository;
-    }
+    /* Utilizziamo il constructor property promotion per abbreviare il codice e automaticamente
+    creare la variabile con l'oggetto associato*/
+    public function __construct(readonly PrestationsRepository $prestationsRepository) {}
 
     //Creiamo i metodi di validazione al di fuori deli metodi così da porterli riutilizzare
 

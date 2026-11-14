@@ -10,18 +10,14 @@ use Throwable;
 
 // Creiamo la classe salesRepository
 class SalesRepository {
-    // Dichiariamo $pdo.
-    private PDO $pdo;
-
     // Creiamo una costante per il nome della tabella così da riutilizzarla
     private const TABLE_SALES = "sales";
     private const TABLE_SALES_DETAILS = "sales_details";
     private const TABLE_PRESTATIONS = "prestations";
 
-    // Usiamo il costruttore per eguagliare il parametro in ingresso con la variabile privata
-    public function __construct(PDO $pdo){
-        $this->pdo = $pdo;
-    }
+    /* Utilizziamo il constructor property promotion per abbreviare il codice e automaticamente
+    creare la variabile con l'oggetto associato*/
+    public function __construct(readonly PDO $pdo) {}
 
     /* Metodo getAllSales restituisce tutte le vendite effettuate:
         1. Query SQL: la query utilizza gli alias per accorciare la nomenclatura delle tabella.
@@ -100,6 +96,35 @@ class SalesRepository {
 
             $newIdSale = (int) $this->pdo->lastInsertId();
 
+            $placeholders = [];
+            $params = [];
+
+            foreach ($details as $index => $detail) {
+                $placeholder = ':id' . $index;
+                $placeholders[] = $placeholder;
+                $params[$placeholder] = $detail['id_prestation'];
+            }
+
+            $placeholdersString = implode(', ',$placeholders);
+
+            $queryTimeSaved = "SELECT id, time_saved FROM " . SalesRepository::TABLE_PRESTATIONS . " WHERE active = true AND id IN ($placeholdersString)";
+            $stmtTimeSaved = $this->pdo->prepare($queryTimeSaved);
+            $stmtTimeSaved->execute($params);
+
+            $detailsPrestations = $stmtTimeSaved->fetchAll();
+
+            $timeSavedById = [];
+            foreach($detailsPrestations as $detailPrestation) {
+                $timeSavedById[$detailPrestation['id']] = $detailPrestation['time_saved'];
+            }
+
+            foreach($details as $detail){
+                $id_prestation = $detail['id_prestation'];
+                if (isset($timeSavedById[$id_prestation]) === false) {
+                    throw new InvalidArgumentException("La prestazione " . $id_prestation . " inesistente", 404);
+                }
+            }
+
             $querySaleDetails = "INSERT INTO " . SalesRepository::TABLE_SALES_DETAILS . " (id_sale, id_prestation, quantity, time_saved_snapshot)
                 VALUES (:id_sale, :id_prestation, :quantity, :time_saved_snapshot)";
 
@@ -108,16 +133,7 @@ class SalesRepository {
             foreach ($details as $detail){
                 $id_prestation = $detail['id_prestation'];
                 $quantity = $detail['quantity'];
-
-                $queryTimeSaved = "SELECT time_saved FROM " . SalesRepository::TABLE_PRESTATIONS . " WHERE id = :id AND active = true";
-                $stmtTimeSaved = $this->pdo->prepare($queryTimeSaved);
-                $stmtTimeSaved->bindValue(':id', $id_prestation, PDO::PARAM_INT);
-                $stmtTimeSaved->execute();
-                $time_saved_snapshot = $stmtTimeSaved->fetchColumn();
-
-                if ($time_saved_snapshot === false) {
-                    throw new InvalidArgumentException("La prestazione " . $id_prestation . " non esiste", 404);
-                }
+                $time_saved_snapshot = $timeSavedById[$id_prestation];
 
                 $stmt->bindValue(':id_sale', $newIdSale, PDO::PARAM_INT);
                 $stmt->bindValue(':id_prestation', $id_prestation, PDO::PARAM_INT);
