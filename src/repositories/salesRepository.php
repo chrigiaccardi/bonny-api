@@ -196,41 +196,59 @@ class SalesRepository {
         12. Nel catch se la transizione è ancora attiva la interrompiamo e mandiamo vari errori o eccezzioni al service che li gestirà. */
     function addDetails(int $id_sale, array $details):int {
         try {
-            // 
             $querySale = "SELECT id FROM " . SalesRepository::TABLE_SALES . " WHERE id = :id";
             $stmtSale = $this->pdo->prepare($querySale);
             $stmtSale->bindValue(':id', $id_sale, PDO::PARAM_INT);
             $stmtSale-> execute();
-            $checkSale = count($stmtSale->fetchAll());
+            $checkSale = $stmtSale->fetchColumn();
 
-            if ($checkSale === 0) {
-                return $checkSale;
+            if ($checkSale === false) {
+                return 0;
             } else {
                 $this->pdo->beginTransaction();
+
+                $placeholders = [];
+                $params = [];
+
+                foreach ($details as $index => $detail) {
+                    $placeholder = ':id' . $index;
+                    $placeholders[] = $placeholder;
+                    $params[$placeholder] = $detail['id_prestation'];
+                }
+
+                $placeholdersString = implode(', ', $placeholders);
+
+                $queryTimeSaved = "SELECT id, time_saved FROM " . SalesRepository::TABLE_PRESTATIONS . " WHERE active = true AND id IN ($placeholdersString)";
+                $stmtTimeSaved = $this->pdo->prepare($queryTimeSaved);
+                $stmtTimeSaved->execute($params);
+
+                $detailsPrestations = $stmtTimeSaved->fetchAll();
+
+                $timeSavedById = [];
+                foreach ($detailsPrestations as $detailPrestation) {
+                    $timeSavedById[$detailPrestation['id']] = $detailPrestation['time_saved'];
+                }
+
+                foreach ($details as $detail) {
+                    $id_prestation = $detail['id_prestation'];
+                    if (isset($timeSavedById[$id_prestation]) === false) {
+                        throw new InvalidArgumentException("La prestazione " . $id_prestation . " inesistente", 404);
+                    }
+                }
 
                 $querySaleDetails = "INSERT INTO " . SalesRepository::TABLE_SALES_DETAILS . " (id_sale, id_prestation, quantity, time_saved_snapshot)
                     VALUES (:id_sale, :id_prestation, :quantity, :time_saved_snapshot)";
                 $stmt = $this->pdo->prepare($querySaleDetails);
 
-                foreach ($details as $detail){
+                foreach ($details as $detail) {
                     $id_prestation = $detail['id_prestation'];
                     $quantity = $detail['quantity'];
+                    $time_saved_snapshot = $timeSavedById[$id_prestation];
 
-                    $queryTimeSaved = "SELECT time_saved FROM " . SalesRepository::TABLE_PRESTATIONS . " WHERE id = :id AND active = true";
-                    $stmtTimeSaved = $this->pdo->prepare($queryTimeSaved);
-                    $stmtTimeSaved->bindValue(':id', $id_prestation, PDO::PARAM_INT);
-                    $stmtTimeSaved->execute();
-                    $time_saved_snapshot = $stmtTimeSaved->fetchColumn();
-
-                    if ($time_saved_snapshot === false) {
-                        throw new InvalidArgumentException("La prestazione " . $id_prestation . " non esiste", 404);
-                    }
-                    
                     $stmt->bindValue(':id_sale', $id_sale, PDO::PARAM_INT);
                     $stmt->bindValue(':id_prestation', $id_prestation, PDO::PARAM_INT);
                     $stmt->bindValue(':quantity', $quantity, PDO::PARAM_INT);
                     $stmt->bindValue(':time_saved_snapshot', $time_saved_snapshot, PDO::PARAM_INT);
-
                     $stmt->execute();
                 }
                 $this->pdo->commit();

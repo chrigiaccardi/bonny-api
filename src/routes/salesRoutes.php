@@ -39,7 +39,7 @@ if($method === 'GET' && (preg_match($pattern1, $path, $matches) === 1)){
     $salesController->getById($id_sale);
 }
 
-// MEtodo create():
+// Metodo create():
 if ($method === 'POST' && $path === "/sales") {
     $salesController->create();
 }
