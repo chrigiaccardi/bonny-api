@@ -16,6 +16,7 @@ if($method === 'GET' && $path === '/sales'){
 
 // Metodo getTotalTimeSaved():
 if ($method === 'GET' && $path === '/total-time-saved') {
+    // 1. Recuperiamo dalla richiesta l'id_prestation, la data d'inizio e la data di fine, se non presenti null.
     $id_prestation = $_GET['id_prestation'] ?? null;
     $start_date = $_GET['start_date'] ?? null;
     $end_date = $_GET['end_date'] ?? null;

@@ -38,13 +38,14 @@ if ($method === 'PUT' && (preg_match($pattern, $path, $matches) === 1)) {
 // Metodo deactivate():
 if($method === 'DELETE' && (preg_match($pattern, $path, $matches) === 1)) {
     $id_prestation = intval($matches[1]);
-    // Recuperato l'id_prestation lo inseriamo nel metodo update()
+    // Recuperato l'id_prestation lo inseriamo nel metodo deactivate()
     $prestationsController->deactivate($id_prestation);
 }
 
 // Metodo activate():
 if ($method === 'PATCH' && (preg_match($pattern, $path, $matches) === 1)) {
     $id_prestation = intval($matches[1]);
+    // Recuperato l'id_prestation lo inseriamo nel metodo deactivate()
     $prestationsController->activate($id_prestation);
 }
 

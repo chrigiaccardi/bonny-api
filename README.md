@@ -28,12 +28,13 @@ L'applicazione permette di:
 
 ## 🛠️ Tecnologie Utilizzate
 
-| Tecnologia           | Versione | Descrizione                          |
-|----------------------|----------|--------------------------------------|
-| **PHP**              | 8.5.10   | Linguaggio di programmazione Backend |
-| **MySQL**            | 27.7.0   | Database relazionale                 |
-| **Composer**         | 2.10.3   | Gestione delle dipendenze            |
-| **vlucas/phpdotenv** | 5.7.0    | Gestione variabili d'ambiente        |
+| Tecnologia             | Versione | Descrizione                                     |
+|------------------------|----------|-------------------------------------------------|
+| **PHP**                | 8.5.10   | Linguaggio di programmazione Backend            |
+| **MySQL**              | 27.7.0   | Database relazionale                            |
+| **Apache HTTP Server** | 2.4.71   | Server Web per la gestione delle richieste HTTP |
+| **Composer**           | 2.10.3   | Gestione delle dipendenze                       |
+| **vlucas/phpdotenv**   | 5.7.0    | Gestione variabili d'ambiente                   |
 
 ---
 
@@ -75,15 +76,65 @@ DB_PASSWORD= password.
 Utilizzando il tuo MySQL client preferito, carica il file `migrations.sql`.
 Il file crea il database chiamato **bonny_api** e le seguenti tabelle `prestations`, `sales`, `sales_details`.
 
-### 5. Accensione Server
+### 5. Avvio del Server
 
-**PHP Built In Server** viene fatto partire, nella cartella progetto, con il seguente comando da terminale: (si utilizza -t per determinare in anticipo la cartella che contiene il file index.php entrypoint)
+Bonny API può essere eseguita utilizzando il server integrato di PHP oppure un server Apache.
+
+#### 5.1 PHP Built-in Server (metodo consigliato per iniziare)
+
+PHP mette a disposizione un server web integrato, utile per lo sviluppo e il test delle API.
+
+Dalla directory principale del progetto eseguire:
 
 ```bash
 php -S localhost:8000 -t public
 ```
 
-Per questo progetto abbiamo utilizzato come base URL `http://localhost:8000`.
+Il parametro `-t public` indica la directory pubblica che contiene il file `index.php`, utilizzato come entry point dell'applicazione.
+
+Base URL:
+
+```text
+http://localhost:8000
+```
+
+#### 5.2 Configurazione Apache (alternativa)
+
+È possibile utilizzare Apache come server web, configurando il VirtualHost affinché punti alla directory `public` del progetto.
+
+La configurazione varia in base al sistema operativo e al metodo di installazione di Apache e PHP.
+
+**macOS – Homebrew**
+
+1. Installare Apache e PHP tramite Homebrew.
+2. Avviare PHP-FPM e Apache.
+3. Abilitare i moduli Apache necessari:
+   - `mod_rewrite`
+   - `mod_proxy`
+   - `mod_proxy_fcgi`
+4. Configurare Apache per utilizzare PHP-FPM.
+5. Creare un VirtualHost con `DocumentRoot` impostato sulla directory `public` del progetto.
+6. Includere il file di configurazione del progetto nel file principale `httpd.conf`.
+
+La configurazione utilizzata durante lo sviluppo di Bonny prevede:
+- Apache sulla porta `8080`;
+- PHP-FPM sulla porta `9000`;
+- URL base `http://localhost:8080`.
+
+**Windows – XAMPP**
+
+Su Windows è possibile utilizzare XAMPP, che mette a disposizione Apache e PHP in un unico ambiente.
+
+1. Installare XAMPP.
+2. Avviare il servizio Apache dal pannello di controllo XAMPP.
+3. Configurare un VirtualHost nel file `httpd-vhosts.conf`.
+4. Impostare `DocumentRoot` sulla directory `public` del progetto.
+5. Verificare che il modulo `mod_rewrite` sia abilitato.
+6. Verificare che Apache sia configurato per interpretare i file PHP tramite il modulo PHP fornito da XAMPP.
+
+Anche in questo caso Apache deve inoltrare le richieste non associate a file o directory esistenti al file `index.php`, affinché il router dell'API possa gestire gli endpoint.
+
+**Nota:** i percorsi delle directory e i file di configurazione possono variare in base alla versione e al metodo di installazione utilizzato.
 
 ---
 
@@ -92,6 +143,8 @@ Per questo progetto abbiamo utilizzato come base URL `http://localhost:8000`.
 ### 1. Albero di costruzione:
 
 ```
+├── apache
+│   └── bonny.conf
 ├── public
 │   └── index.php
 ├── src
